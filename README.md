@@ -4,7 +4,7 @@ eds 240 final project infographic repo
 # CHNMS Fleet Activity Data (2017–2024)
 
 ## Overview
-This repository contains a processed dataset of Global Fishing Watch (GFW) fleet activity within the Chumash Heritage National Marine Sanctuary (CHNMS) from 2017 to 2024. The goal is to provide a baseline for analyzing fishing activity, gear types, and vessel effort within the sanctuary, which can be used for visualization, research, or infographics.
+This repository contains a processed dataset of Global Fishing Watch (GFW) fleet activity within Chumash Heritage National Marine Sanctuary (CHNMS) from 2017 to 2024. The goal is to provide a baseline for analyzing fishing activity, gear types, and vessel effort within the sanctuary, which can be used for visualization, this project infographic and future management decisions.
 
 ---
 
@@ -16,7 +16,7 @@ This repository contains a processed dataset of Global Fishing Watch (GFW) fleet
 ---
 
 ## Data Access
-- **Processed data:** `fleet_chnms_2017_2024.csv` is included in the repository and ready for analysis.
+- **Processed data:** `fleet_chnms_2017_2024.csv` is included in the repository and ready for analysis. The file is currently held in .gitignore, please reach out sramnath@bren.ucsb.edu for the copy. 
 - **Raw data:** Monthly GFW fleet CSVs (v3, 2017–2024) are **not included** to reduce repository size. They can be re-downloaded from the [Global Fishing Watch data portal](https://globalfishingwatch.org/datasets-and-code/) if needed.
 - **Boundary shapefile:** Included in `data/chnms_designated_boundary/CHNMS_py.shp`. and available publicly at 
 
@@ -50,3 +50,7 @@ You can load the processed dataset in R:
 ```r
 library(readr)
 fleet <- read_csv("data/fleet_chnms_2017_2024.csv")
+
+---
+## Contact
+sramnath@bren.ucsb.edu 
