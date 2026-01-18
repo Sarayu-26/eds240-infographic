@@ -18,7 +18,7 @@ This repository contains a processed dataset of Global Fishing Watch (GFW) fleet
 ## Data Access
 - **Processed data:** `fleet_chnms_2017_2024.csv` is included in the repository and ready for analysis. The file is currently held in .gitignore, please reach out sramnath@bren.ucsb.edu for the copy. 
 - **Raw data:** Monthly GFW fleet CSVs (v3, 2017–2024) are **not included** to reduce repository size. They can be re-downloaded from the [Global Fishing Watch data portal](https://globalfishingwatch.org/datasets-and-code/) if needed.
-- **Boundary shapefile:** Included in `data/chnms_designated_boundary/CHNMS_py.shp`. and available publicly at [https://sanctuaries.noaa.gov/library/imast_gis.html](url) With metadata included in [https://nmssanctuaries.blob.core.windows.net/sanctuaries-prod/media/gis/chnms_py.pdf](url). 
+- **Boundary shapefile:** Included in `data/chnms_designated_boundary/CHNMS_py.shp`. and available publicly at [https://sanctuaries.noaa.gov/library/imast_gis](url) With metadata included in [https://nmssanctuaries.blob.core.windows.net/sanctuaries-prod/media/gis/chnms_py.pdf](url). 
 
 ---
 ## Data Citation
