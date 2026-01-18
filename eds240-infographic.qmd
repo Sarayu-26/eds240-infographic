@@ -99,7 +99,7 @@ boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
 # Convert fleet CSV back to sf for plotting
 fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326)
 
-# Quick plot
+# plot to see what we are working with 
 ggplot() +
   geom_sf(data = boundary, fill = NA, color = "black") +
   geom_sf(data = fleet_sf, color = "red", size = 0.5, alpha = 0.5) +
@@ -111,6 +111,7 @@ ggplot() +
 ```{r}
 library(dplyr)
 
+#need to aggregate 
 fleet_agg <- fleet %>%
   group_by(cell_ll_lat, cell_ll_lon) %>%
   summarise(total_hours = sum(fishing_hours, na.rm = TRUE))
@@ -118,7 +119,7 @@ fleet_agg <- fleet %>%
 ggplot() +
   geom_sf(data = boundary, fill = NA, color = "black") +
   geom_point(data = fleet_agg, aes(x = cell_ll_lon, y = cell_ll_lat, size = total_hours),
-             color = "red", alpha = 0.6) +
+             color = "darkgreen", alpha = 0.6) +
   theme_minimal() +
   labs(title = "Aggregated fishing effort by location")
 
