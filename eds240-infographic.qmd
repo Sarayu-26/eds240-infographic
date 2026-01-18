@@ -1,0 +1,134 @@
+---
+title: "eds240-infographic"
+author: "Sarayu Ramnath"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Joining raw data sets from gfw
+
+downloaded vessel watch data ais from years 2017-2024, I plan to join them all into one csv file and then clip.
+
+```{r}
+library(dplyr)
+library(readr)
+library(sf)
+
+# List files
+file_list <- list.files(
+  path = "data",
+  pattern = "fleet-monthly-csvs-10-v3-(2017|2018|2019|2020|2021|2022|2023|2024)-\\d{2}-01\\.csv$",
+  full.names = TRUE
+)
+
+# Load boundary once
+boundary <- st_read(
+  "data/chnms_designated_boundary/CHNMS_py.shp",
+  quiet = TRUE
+) %>%
+  st_transform(4326) %>%
+  st_make_valid()
+
+```
+
+define the function
+
+```{r}
+process_one_file <- function(f) {
+
+  df <- read_csv(f, show_col_types = FALSE)
+
+  sf_pts <- st_as_sf(
+    df,
+    coords = c("cell_ll_lon", "cell_ll_lat"),
+    crs = 4326,
+    remove = FALSE
+  )
+
+  inside <- st_within(sf_pts, boundary, sparse = FALSE)[,1]
+
+  sf_clipped <- sf_pts[inside, ]
+
+  out <- st_drop_geometry(sf_clipped)
+
+  rm(df, sf_pts, sf_clipped)
+  gc()
+
+  return(out)
+}
+
+```
+
+run the loop
+
+```{r}
+#| message: false
+#| warning: false
+#| cache: true
+#| echo: false
+
+fleet_chnms <- lapply(file_list, process_one_file) %>%
+  bind_rows()
+
+write_csv(
+  fleet_chnms,
+  "data/fleet_chnms_2017_2024.csv"
+)
+
+file.remove(file_list) #saved copy of all gfw raw files, removed 
+```
+
+EDA spatial view
+
+```{r}
+library(ggplot2)
+library(sf)
+library(readr)
+
+# Load the processed CSV
+fleet <- read_csv("data/fleet_chnms_2017_2024.csv")
+
+# Load boundary again as sf
+boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
+  st_transform(4326)
+
+# Convert fleet CSV back to sf for plotting
+fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326)
+
+# Quick plot
+ggplot() +
+  geom_sf(data = boundary, fill = NA, color = "black") +
+  geom_sf(data = fleet_sf, color = "red", size = 0.5, alpha = 0.5) +
+  theme_minimal() +
+  labs(title = "Fishing points inside CHNMS (2017–2024)")
+
+```
+
+```{r}
+library(dplyr)
+
+fleet_agg <- fleet %>%
+  group_by(cell_ll_lat, cell_ll_lon) %>%
+  summarise(total_hours = sum(fishing_hours, na.rm = TRUE))
+
+ggplot() +
+  geom_sf(data = boundary, fill = NA, color = "black") +
+  geom_point(data = fleet_agg, aes(x = cell_ll_lon, y = cell_ll_lat, size = total_hours),
+             color = "red", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Aggregated fishing effort by location")
+
+ggplot() +
+  geom_sf(data = boundary, fill = NA, color = "black") +
+  stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
+              bins = 30) +
+  scale_fill_viridis_c(option = "magma") +
+  theme_minimal() +
+  labs(title = "Fishing effort density (heatmap)")
+
+
+```
