@@ -11,7 +11,7 @@ Quarto enables you to weave together content and executable code into a finished
 
 ## Joining raw data sets from gfw
 
-downloaded vessel watch data ais from years 2017-2024, I plan to join them all into one csv file and then clip.
+downloaded vessel watch data ais from years 2017-2024 and chnms shapefile boundary.
 
 ```{r}
 library(dplyr)
@@ -38,7 +38,7 @@ boundary <- st_read(
 define the function
 
 ```{r}
-process_one_file <- function(f) {
+gfw_one_file <- function(f) {
 
   df <- read_csv(f, show_col_types = FALSE)
 
@@ -71,7 +71,7 @@ run the loop
 #| cache: true
 #| echo: false
 
-fleet_chnms <- lapply(file_list, process_one_file) %>%
+fleet_chnms <- lapply(file_list, gfw_one_file) %>%
   bind_rows()
 
 write_csv(
@@ -82,7 +82,9 @@ write_csv(
 file.remove(file_list) #saved copy of all gfw raw files, removed 
 ```
 
-EDA spatial view
+EDA spatial view: preliminary af just to see if the plots are plotted and what they look like.
+
+Now when we are working with the data we can pretty much start from here.
 
 ```{r}
 library(ggplot2)
