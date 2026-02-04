@@ -1,0 +1,231 @@
+---
+title: "Exploration"
+author: "Sarayu Ramnath"
+editor: visual
+editor_options: 
+  chunk_output_type: console
+format:
+  pdf:
+    pdf-engine: xelatex
+    theme: cerulean
+knitr:
+  opts_chunk:
+    warning: false
+    message: false
+---
+
+## Objective 
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Visualization
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+#load files for environment
+
+library(ggplot2)
+library(sf)
+library(readr)
+library(dplyr)
+
+# Load the processed CSV
+fleet <- read_csv("data/fleet_chnms_2017_2024.csv")
+
+# Load boundary again as sf
+boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
+  st_transform(4326)
+
+# Convert fleet CSV back to sf for plotting
+fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326)
+
+#need to aggregate by fishing hours by lat long
+fleet_agg_fishing <- fleet %>%
+  group_by(cell_ll_lat, cell_ll_lon) %>%
+  summarise(total_hours = sum(fishing_hours, na.rm = TRUE))
+
+#aggregrate by gear type with fishing hours
+fleet_agg_gear <- fleet %>%
+  group_by(geartype)|>
+  summarise(
+    total_fishing_hours = sum(fishing_hours, na.rm = TRUE)
+  )
+  
+#aggregate gear type by season
+fleet_agg_gear_month <- fleet_sf |>
+  st_drop_geometry()|>
+  group_by(geartype, month) |>
+  summarise(
+    total_fishing_hours = sum(fishing_hours, na.rm = TRUE), 
+    .groups = "drop" #remove all grouping now that we dropped
+  )
+```
+
+```{r}
+
+ggplot() +
+  geom_sf(data = boundary, fill = NA, color = "black") +
+  geom_point(data = fleet_agg, aes(x = cell_ll_lon, y = cell_ll_lat, size = total_hours),
+             color = "darkgreen", alpha = 0.6) +
+  theme_minimal() +
+  labs(title = "Aggregated fishing effort by location")
+```
+
+```{r}
+ggplot() +
+  geom_sf(data = boundary, fill = NA, color = "black") +
+  stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
+              bins = 30) +
+  scale_fill_viridis_c(option = "magma") +
+  theme_minimal() +
+  labs(title = "Fishing effort density (heatmap)")
+```
+
+```{r}
+ggplot()+
+geom_col(data = fleet_agg_gear,(aes(x = reorder (geartype, -total_fishing_hours),y = total_fishing_hours)
+         ))+
+  labs(
+    x = "Fishing gear type",
+    y = "Total fishing hours",
+    title = "Total fishing effort by gear type"
+  ) +
+  theme_minimal() +
+  theme(
+    axis.text.x = element_text(angle = 45, hjust = 1)
+  )
+```
+
+Gear types with zero hours reflect the absence of AIS-detected effort within the study area and do not imply the absence of fishing activity.
+
+```{r}
+library(ggplot2)
+library(dplyr)
+library(scales)
+
+ggplot() +
+  geom_col(
+    data = fleet_agg_gear,
+    aes(
+      x = total_fishing_hours,
+      y = reorder(geartype, total_fishing_hours)
+    ),
+    fill = "#6B7C8A",
+    width = 0.6,
+    alpha = 0.9
+  ) +
+  
+  labs(
+    title = "AIS-detected fishing effort by gear type",
+    subtitle = "Chumash Heritage National Marine Sanctuary",
+    x = "Total Fishing Hours",
+    y = NULL
+  ) 
+```
+
+ridge plot
+
+```{r}
+
+library(ggridges)
+library(ggplot2)
+library(viridis)
+
+
+# Seasonal color scheme (blues to oranges across the year)
+ggplot(fleet_agg_gear_month,
+       aes(x = month,
+           y = reorder(geartype, total_fishing_hours, FUN = sum),
+           fill = after_stat(x))) +
+  geom_density_ridges_gradient(
+    scale = 3.2,
+    rel_min_height = 0.01,
+    alpha = 0.9,
+    color = "#1a1a1a",
+    size = 0.5
+  ) +
+  scale_x_continuous(
+    breaks = 1:12,
+    labels = month.abb,
+    expand = c(0.01, 0)
+  ) +
+  scale_fill_gradientn(
+    colors = c("#3B5F8F", "#5A8CAE", "#7FB8D4", "#A8D5E2",
+               "#FFD580", "#FFA040"),
+    name = "Month"
+  ) +
+  labs(
+    title = "Seasonal fishing effort by gear type",
+    subtitle = "Central California · Cool colors = winter/spring, warm colors = summer/fall",
+    x = NULL,
+    y = NULL,
+    caption = "Data: Global Fishing Watch AIS"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.grid = element_blank(),
+    
+    legend.position = "none",
+    panel.spacing = unit(0.1, "lines"),
+    
+    plot.title = element_text(
+      size = 17,
+      face = "bold",
+      color = "#0D1B2A",
+      hjust = 0,
+      margin = margin(b = 3)
+    ),
+    plot.subtitle = element_text(
+      size = 10,
+      color = "#5A6670",
+      hjust = 0,
+      margin = margin(b = 18)
+    ),
+    plot.caption = element_text(
+      size = 8,
+      color = "#888888",
+      hjust = 1,
+      margin = margin(t = 12)
+    ),
+    
+    axis.text.y = element_text(
+      color = "#0D1B2A",
+      size = 10,
+      face = "bold",
+      hjust = 1,
+      margin = margin(r = 10)
+    ),
+    axis.text.x = element_text(
+      color = "#5A6670",
+      size = 12,
+      margin = margin(t = 5)
+    ),
+    
+    plot.margin = margin(25, 25, 15, 25)
+  )
+```
+
+```{r}
+ggplot(fleet_agg_gear_month, aes(x = month, y = geartype, fill = total_fishing_hours)) +
+  geom_tile(color = NA) +
+  scale_fill_gradient(low = "#AAB4BE", high = "#2F3A44") +
+  scale_x_continuous(
+    breaks = 1:12,
+    labels = c("J","F","M","A","M","J","J","A","S","O","N","D")
+  ) +
+  labs(
+    title = "Seasonal AIS-detected fishing effort by gear type",
+    subtitle = "Central California",
+    x = NULL, y = NULL, fill = "Fishing hours"
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.background = element_rect(fill = "#F7F6F3", color = NA),
+    panel.background = element_rect(fill = "#F7F6F3", color = NA),
+    axis.text.x = element_text(color = "#5A6670"),
+    axis.text.y = element_text(color = "#2F3A44")
+  )
+```
