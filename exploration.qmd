@@ -1,5 +1,5 @@
 ---
-title: "Exploration"
+title: "Infographic Exploration (FPM #2)"
 author: "Sarayu Ramnath"
 editor: visual
 editor_options: 
@@ -14,21 +14,29 @@ knitr:
     message: false
 ---
 
-## Objective 
+**Objective**
 
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+Using AIS data from Global Fishing Watch to summarize seasonal fishing activity, gear use, and spatial hotspots within Chumash Heritage National Marine Sanctuary
 
-## Visualization
+**Exploratory Data Analysis**
 
-When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+This code loads the library and has the code for data wrangling more specific outputs for the visualizations.
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+
 #load files for environment
 
 library(ggplot2)
 library(sf)
 library(readr)
 library(dplyr)
+library(forcats)
+
 
 # Load the processed CSV
 fleet <- read_csv("data/fleet_chnms_2017_2024.csv")
@@ -47,42 +55,87 @@ fleet_agg_fishing <- fleet %>%
 
 #aggregrate by gear type with fishing hours
 fleet_agg_gear <- fleet %>%
-  group_by(geartype)|>
+  group_by(geartype) %>%
   summarise(
     total_fishing_hours = sum(fishing_hours, na.rm = TRUE)
   )
   
 #aggregate gear type by season
-fleet_agg_gear_month <- fleet_sf |>
-  st_drop_geometry()|>
-  group_by(geartype, month) |>
-  summarise(
-    total_fishing_hours = sum(fishing_hours, na.rm = TRUE), 
-    .groups = "drop" #remove all grouping now that we dropped
+ fleet_agg_gear_month <- fleet %>%
+  group_by(geartype) %>%
+  mutate(total_gear_hours = sum(fishing_hours, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(
+    geartype = fct_reorder(geartype, total_gear_hours, .desc = TRUE)
+  )
+ 
+ #aggregate gear type by month 
+ fleet_agg_gear_heat <- fleet_sf %>%
+  st_drop_geometry() %>%
+  group_by(geartype, month) %>%
+  summarise(total_fishing_hours = sum(fishing_hours, na.rm = TRUE),
+            .groups = "drop") %>%
+  mutate(
+    geartype = fct_reorder(geartype, total_fishing_hours, sum, .desc = TRUE)
   )
 ```
 
+**EDA #1 Aggregated Fishing Effort by Location**
+
+Showing density maps of hotspots within the Sanctuary based on amount of fishing hours.
+
+Question: Where are we seeing the most hours spent fishing in the Sanctuary across all gear types?
+
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
 
 ggplot() +
   geom_sf(data = boundary, fill = NA, color = "black") +
-  geom_point(data = fleet_agg, aes(x = cell_ll_lon, y = cell_ll_lat, size = total_hours),
+  geom_point(data = fleet_agg_fishing, aes(x = cell_ll_lon, y = cell_ll_lat, size = total_hours),
              color = "darkgreen", alpha = 0.6) +
   theme_minimal() +
   labs(title = "Aggregated fishing effort by location")
 ```
 
+Initial thoughts: A little hard to read and could be smoothed out because you can tell where the most time is spent fishing, but the radial grade could be visualized differently.
+
+**EDA #2 Density hotspot of fishing effort**
+
+Question: Where are we seeing the most hours spent fishing in the Sanctuary across all gear types?
+
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+
 ggplot() +
   geom_sf(data = boundary, fill = NA, color = "black") +
   stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
               bins = 30) +
-  scale_fill_viridis_c(option = "magma") +
+  scale_fill_viridis_c(option = "viridis", direction = -1) +
   theme_minimal() +
-  labs(title = "Fishing effort density (heatmap)")
+  labs(title = "Fishing effort density")
 ```
 
+Initial thoughts: Looks a little better, but since the blocks are binned and aggregated, it absolutely needs to be smoothed out, but would we loose any resolution here?
+
+**EDA #3 Total fishing effort by gear type**
+
+Question: What are the total fishing hours by gear type? Here are two different bar charts showing that.
+
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+
 ggplot()+
 geom_col(data = fleet_agg_gear,(aes(x = reorder (geartype, -total_fishing_hours),y = total_fishing_hours)
          ))+
@@ -97,9 +150,17 @@ geom_col(data = fleet_agg_gear,(aes(x = reorder (geartype, -total_fishing_hours)
   )
 ```
 
-Gear types with zero hours reflect the absence of AIS-detected effort within the study area and do not imply the absence of fishing activity.
+Initial thoughts: What I am taking away here with the gear types with zero hours reflect the absence of AIS-detected effort within the study area and do not imply the absence of fishing activity.
+
+**EDA #4 More Refined Bar Chart showing gear types by hours.**
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+
 library(ggplot2)
 library(dplyr)
 library(scales)
@@ -117,26 +178,30 @@ ggplot() +
   ) +
   
   labs(
-    title = "AIS-detected fishing effort by gear type",
+    title = "AIS-detected fishing effort by gear type (2017-2024)",
     subtitle = "Chumash Heritage National Marine Sanctuary",
     x = "Total Fishing Hours",
     y = NULL
   ) 
+
 ```
 
-ridge plot
+**EDA #5 : Seasonal Visualization showing when and where different gear types are used (Ridgeplot)**
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
 
 library(ggridges)
 library(ggplot2)
 library(viridis)
 
-
-# Seasonal color scheme (blues to oranges across the year)
 ggplot(fleet_agg_gear_month,
        aes(x = month,
-           y = reorder(geartype, total_fishing_hours, FUN = sum),
+           y = reorder(geartype, total_gear_hours, FUN = sum),
            fill = after_stat(x))) +
   geom_density_ridges_gradient(
     scale = 3.2,
@@ -157,7 +222,7 @@ ggplot(fleet_agg_gear_month,
   ) +
   labs(
     title = "Seasonal fishing effort by gear type",
-    subtitle = "Central California · Cool colors = winter/spring, warm colors = summer/fall",
+    subtitle = "Chumash Heritage National Marine Sanctuary",
     x = NULL,
     y = NULL,
     caption = "Data: Global Fishing Watch AIS"
@@ -208,24 +273,69 @@ ggplot(fleet_agg_gear_month,
   )
 ```
 
+**EDA #6 Seasonal Fishing Effort by Gear Type (HeatMap)**
+
 ```{r}
-ggplot(fleet_agg_gear_month, aes(x = month, y = geartype, fill = total_fishing_hours)) +
-  geom_tile(color = NA) +
-  scale_fill_gradient(low = "#AAB4BE", high = "#2F3A44") +
-  scale_x_continuous(
-    breaks = 1:12,
-    labels = c("J","F","M","A","M","J","J","A","S","O","N","D")
-  ) +
-  labs(
-    title = "Seasonal AIS-detected fishing effort by gear type",
-    subtitle = "Central California",
-    x = NULL, y = NULL, fill = "Fishing hours"
-  ) +
-  theme_minimal(base_size = 12) +
-  theme(
-    plot.background = element_rect(fill = "#F7F6F3", color = NA),
-    panel.background = element_rect(fill = "#F7F6F3", color = NA),
-    axis.text.x = element_text(color = "#5A6670"),
-    axis.text.y = element_text(color = "#2F3A44")
-  )
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+ 
+
+ggplot(fleet_agg_gear_heat, aes(x = month, y = geartype, fill = total_fishing_hours)) +
+geom_tile(color = NA) +
+scale_fill_gradient(low = "#AAB4BE", high = "#2F3A44") +
+scale_x_continuous(
+breaks = 1:12,
+labels = c("J","F","M","A","M","J","J","A","S","O","N","D")
+) +
+labs(
+title = "Seasonal AIS-detected fishing effort by gear type",
+subtitle = "Chumash Heritage National Marine Sanctuary",
+x = NULL, y = NULL, fill = "Fishing hours"
+) +
+theme_minimal(base_size = 12) +
+theme(
+plot.background = element_rect(fill = "#F7F6F3", color = NA),
+panel.background = element_rect(fill = "#F7F6F3", color = NA),
+axis.text.x = element_text(color = "#5A6670"),
+axis.text.y = element_text(color = "#2F3A44")
+)
 ```
+
+**Questions after first EDA**
+
+**1.** What have you learned about your data? Have any potentially interesting patterns emerged? Point to specific visualizations that you created as you describe your findings.
+
+-   This exploratory analysis reinforced that AIS-detected fishing activity represents only a subset of fishing occurring within the Sanctuary. This was expected and consistent with my understanding of AIS coverage along CA coast, but this shaped what fishing effort looks like across gear types and space.
+
+-   Across the spatial visualizations ( EDA #1 & 2), fishing effort is concentrated in limited offshore hotspots, showing that most the sanctuary has low AIS-detected activity. Aggregating the fishing hours by location helped reduce the visual clutter, but I need to smooth things out to see this spatial patterns more clearly.
+
+-   When looking at fishing effort by gear type (EDA #3 & #4), one category was labeled broadly as "fishing" and accounts for the highest total fishing hours. So I'm thinking either multiple gear types are being grouped under a general classification. Gear types like pots & traps and set gillnets show low fishing hours.
+
+-   Seasonal visualizations (EDA #5 & #6) show these same gear types appear during specific times of the year, so we can see temporal presence without high cumulative effort. So some gear types are used intermittently or at lower rates. Maybe I could normalize fishing hours within gear type to better visualize seasonal patterns for the low effort gears. Or facet seasonal plots by gear group.
+
+-   Emerging Patterns:
+
+    -   Low AIS-detected effort for pots and traps is likely because most crab vessels are nearshore and smaller, which do not carry AIS. We are also not seeing many gillnets because they are highly restricted and regulated.
+
+    -   So far, these patterns are pointing to how AIS-derived analysis shows relative indicators of commercial fishing presence and not a full account of fishing activity, but I'm wondering if this was the right data set to go for.
+
+**2.** In [FPM #1](https://eds-240-data-viz.github.io/course-materials/assignments/FPM1.html), you outlined some questions that you wanted to answer using these data. Have you made any strides towards answering those questions? If yes, how so? If no, what next steps do you need to take (e.g. I need to create X plot type, I still need to track down Y data, I need to restructure existing data so that you can visualize it in Z ways, etc.)? Have any new questions emerged?
+
+-   The broad EDA has helped show where, when and how AIS-detected fishing activity appears within the Sanctuary, while highlighting some limitations.
+
+-   Spatial density maps and aggregated fishing-hour visualizations show that fishing effort is concentrated in a few offshore areas, so there is a spatial pattern of fishing activity. Gear-based summaries and seasonal plots also give insight into which gear types are more common in AIS-detected effort and how the use varies seasonally, but now I have more questions than answers.
+
+-   Some original questions cannot yet be fully answered with the current structure of the data, like the "fishing" gear category. These gear classifications need to be unpacked. Also the low effort for pots and traps reflect the AIS coverage rather than true absence.
+
+-   Next steps:
+
+    -   restructuring data to separate or group gear types.
+
+    -   Explore alternative visualizations like gear-normalized seasonal plots.
+
+**3.** What challenges do you foresee encountering with your data? These can be data wrangling and / or visualization challenges.
+
+-   The main challenge is that the AIS data aren’t complete enough to make a solid assessment. Moving forward, I might need to supplement these data or find other sources to identify more definitive patterns, but the current dataset is enough to start understanding the trends.

@@ -5,10 +5,6 @@ format: html
 editor: visual
 ---
 
-## Quarto
-
-Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
-
 ## Joining raw data sets from gfw
 
 downloaded vessel watch data ais from years 2017-2024 and chnms shapefile boundary.
