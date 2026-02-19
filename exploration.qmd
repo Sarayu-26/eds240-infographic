@@ -1,17 +1,12 @@
 ---
 title: "Infographic Exploration (FPM #2)"
 author: "Sarayu Ramnath"
-editor: visual
-editor_options: 
-  chunk_output_type: console
 format:
-  pdf:
-    pdf-engine: xelatex
-    theme: cerulean
-knitr:
-  opts_chunk:
-    warning: false
-    message: false
+  closeread-html:
+    theme: light
+    scrolly: true
+execute:
+  freeze: auto
 ---
 
 **Objective**
@@ -36,6 +31,7 @@ library(sf)
 library(readr)
 library(dplyr)
 library(forcats)
+library(tidyverse)
 
 
 # Load the processed CSV
@@ -78,14 +74,38 @@ fleet_agg_gear <- fleet %>%
   mutate(
     geartype = fct_reorder(geartype, total_fishing_hours, sum, .desc = TRUE)
   )
+ 
+ #add readable gear types to fleet agg gear month
+ gear_labels <- c(
+  drifting_longlines = "Drifting Longlines",
+  fishing = "Fishing",
+  fixed_gear = "Fixed Gear",
+  other_purse_seines = "Other Purse Seines",
+  pole_and_line = "Pole-and-Line",
+  pots_and_traps = "Pots and Traps",
+  purse_seines = "Purse Seines",
+  set_gillnets = "Set Gillnets",
+  set_longlines = "Set Longlines",
+  trawlers = "Trawlers",
+  trollers = "Trollers"
+)
+
+fleet_agg_gear_month <- fleet_agg_gear_month %>%
+  mutate(geartype_label = recode(geartype, !!!gear_labels))
 ```
 
+```{r}
+read.csv("data", "fleet_chnms_2017_2024.csv")
+```
+
+:::::::: closeread
+::: cr-text
 **EDA #1 Aggregated Fishing Effort by Location**
 
-Showing density maps of hotspots within the Sanctuary based on amount of fishing hours.
+This visualization summarizes AIS-detected fishing effort across the Sanctuary. The question here is where fishing hours are spatially concentrated across all gear types.
+:::
 
-Question: Where are we seeing the most hours spent fishing in the Sanctuary across all gear types?
-
+:::::: cr-visual
 ```{r}
 #| echo: false
 #| eval: true
@@ -103,10 +123,14 @@ ggplot() +
 
 Initial thoughts: A little hard to read and could be smoothed out because you can tell where the most time is spent fishing, but the radial grade could be visualized differently.
 
+::::: cr-section
+::: cr-text
 **EDA #2 Density hotspot of fishing effort**
 
-Question: Where are we seeing the most hours spent fishing in the Sanctuary across all gear types?
+This binned density surface highlights offshore hotspots more clearly than the point-based map. However, aggregation introduces smoothing tradeoffs and reduces spatial resolution.
+:::
 
+::: cr-visual
 ```{r}
 #| echo: false
 #| eval: true
@@ -199,16 +223,16 @@ library(ggridges)
 library(ggplot2)
 library(viridis)
 
-ggplot(fleet_agg_gear_month,
+ais_ridgeline <-ggplot(fleet_agg_gear_month,
        aes(x = month,
-           y = reorder(geartype, total_gear_hours, FUN = sum),
+           y = reorder(geartype_label, total_gear_hours, FUN = sum),
            fill = after_stat(x))) +
   geom_density_ridges_gradient(
-    scale = 3.2,
-    rel_min_height = 0.01,
-    alpha = 0.9,
-    color = "#1a1a1a",
-    size = 0.5
+    scale = 1.9,
+  rel_min_height = 0.01,
+  alpha = 1,      
+  color = "#1a1a1a", 
+  size = 0.4
   ) +
   scale_x_continuous(
     breaks = 1:12,
@@ -216,16 +240,16 @@ ggplot(fleet_agg_gear_month,
     expand = c(0.01, 0)
   ) +
   scale_fill_gradientn(
-    colors = c("#3B5F8F", "#5A8CAE", "#7FB8D4", "#A8D5E2",
-               "#FFD580", "#FFA040"),
-    name = "Month"
+    colors = alpha(c("#3B5F8F", "#5A8CAE", "#FFD580", "#FFA040","#7FB8D4", "#A8D5E2"),
+                   0.7),
+    name = "Month", 
   ) +
   labs(
     title = "Seasonal fishing effort by gear type",
-    subtitle = "Chumash Heritage National Marine Sanctuary",
+    subtitle = "Fishing peaks in Summer fishing months in Chumash Heritage National Marine Sanctuary",
     x = NULL,
     y = NULL,
-    caption = "Data: Global Fishing Watch AIS"
+    caption = "Data: Global Fishing Watch AIS (2017-2024)"
   ) +
   theme_minimal() +
   theme(
@@ -237,20 +261,20 @@ ggplot(fleet_agg_gear_month,
     panel.spacing = unit(0.1, "lines"),
     
     plot.title = element_text(
-      size = 17,
+      size = 20,
       face = "bold",
       color = "#0D1B2A",
       hjust = 0,
       margin = margin(b = 3)
     ),
     plot.subtitle = element_text(
-      size = 10,
+      size = 17,
       color = "#5A6670",
       hjust = 0,
       margin = margin(b = 18)
     ),
     plot.caption = element_text(
-      size = 8,
+      size = 10,
       color = "#888888",
       hjust = 1,
       margin = margin(t = 12)
@@ -258,19 +282,30 @@ ggplot(fleet_agg_gear_month,
     
     axis.text.y = element_text(
       color = "#0D1B2A",
-      size = 10,
+      size = 14,
       face = "bold",
       hjust = 1,
       margin = margin(r = 10)
     ),
     axis.text.x = element_text(
       color = "#5A6670",
-      size = 12,
+      size = 13,
       margin = margin(t = 5)
     ),
     
     plot.margin = margin(25, 25, 15, 25)
   )
+ais_ridgeline
+
+ggsave(
+  filename = here::here("figures", "ais_ridgeline.png"),
+  plot = ais_ridgeline,
+  device = "png",
+  width = 15, 
+  height = 10,
+  unit = "in",
+  dpi = 300
+)
 ```
 
 **EDA #6 Seasonal Fishing Effort by Gear Type (HeatMap)**
@@ -339,3 +374,7 @@ axis.text.y = element_text(color = "#2F3A44")
 **3.** What challenges do you foresee encountering with your data? These can be data wrangling and / or visualization challenges.
 
 -   The main challenge is that the AIS data aren’t complete enough to make a solid assessment. Moving forward, I might need to supplement these data or find other sources to identify more definitive patterns, but the current dataset is enough to start understanding the trends.
+:::
+:::::
+::::::
+::::::::
