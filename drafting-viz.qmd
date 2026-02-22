@@ -90,6 +90,12 @@ I was looking to add the the state outline along the hotspot density map, so I'm
 #### Load and process data
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: false
+
 library(ggplot2)
 library(sf)
 library(readr)
@@ -109,7 +115,7 @@ boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
   st_transform(4326)
 
 # Convert fleet CSV back to sf for plotting
-fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326)
+fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326, remove = FALSE)
 
 #need to aggregate by fishing hours by lat long
 fleet_agg_fishing <- fleet %>%
@@ -135,67 +141,34 @@ fleet_agg_gear <- fleet %>%
       total_gear_hours,
       .desc = TRUE
     )
-  )
+  )%>%
+  filter(geartype_label != "Fishing")
  
- #aggregate gear type by month (ridgeline/ heatmap)
-group_by(geartype_label, month) %>%
-  summarise(
-    total_fishing_hours = sum(fishing_hours, na.rm = TRUE),
-    .groups = "drop"
-  ) %>%
-  mutate(
-    geartype_label = fct_reorder(
-      geartype_label,
-      total_fishing_hours,
-      sum,
-      .desc = TRUE
-    )
-  )
- 
-
-# fleet_agg_gear_month1 <- fleet %>%
-#   
-#   # Add season
-#  mutate(
-#     season = case_when(
-#       month %in% c(12,1,2) ~ "December-February",
-#       month %in% 3:5 ~ "March-May",
-#       month %in% 6:8 ~ "June-August",
-#       month %in% 9:11 ~ "September-November"
-#     ),
-#     season = factor(season, levels = c("December-February", "March-May", "June-August", "September-November"))
-#   )%>%
-#   
-#   # Aggregate by gear type and month for ridgeline plot
-#   group_by(geartype_label, month) %>%
-#   summarise(
-#     total_fishing_hours = sum(fishing_hours, na.rm = TRUE),
-#     .groups = "drop"
-#   ) %>%
-#   
-#   # Reorder gear types for plotting
-#   mutate(
-#     geartype_label = fct_reorder(geartype_label, total_fishing_hours, sum, .desc = TRUE)
-#   )
 ```
 
 #### Set Themes
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: false
+
 library(monochromeR)
 library(showtext)
 library(glue)
 #......................import Google fonts.......................
 # `name` is the name of the font as it appears in Google Fonts
 # `family` is the user-specified id that you'll use to apply a font in your ggplot
-font_add_google(name = "Sarala", family = "sarala")
-font_add_google(name = "Noto Sans", family = "noto-sans")
-font_add_google(name = "Red Hat Mono", family = "red")
-#....................import Font Awesome fonts...................
-font_add(family = "fa-brands", 
-         regular = here::here("fonts", "Font Awesome 7 Brands-Regular-400.otf")
-)
+font_add_google(name = "Source Sans 3", family = "sourcesans")
+font_add_google(name = "Merriweather", family = "merriweather")
 showtext_auto()
+
+# font_add(family = "fa-brands", 
+#          regular = here::here("fonts", "Font Awesome 7 Brands-Regular-400.otf")
+# )
+
 ```
 
 #### Ridgeline Plot
@@ -205,7 +178,7 @@ showtext_auto()
 #| eval: true
 #| warning: false
 #| message: false
-#| fold: true
+#| fold: false
 
 library(ggridges)
 library(ggplot2)
@@ -229,12 +202,12 @@ ais_ridgeline <-ggplot(fleet_agg_gear_month,
   ) +
   scale_fill_gradientn(
     colors = alpha(c("#3B5F8F", "#5A8CAE","#7FB8D4", "#FFD580", "#FFA040","#7FB8D4", "#A8D5E2","#5A8CAE"),
-                   0.7),
+                   0.8),
     name = "Month", 
   ) +
   labs(
     title = "Seasonal fishing effort by gear type",
-    subtitle = "Fishing peaks in fall months in Chumash Heritage National Marine Sanctuary,\nwith significant overlaps with Trawlers, Purse Seines, Set Gillnets,\nand Pots and Traps between September to November",
+    subtitle = "Fishing peaks during fall months in Chumash Heritage National Marine Sanctuary,\nwith significant overlaps with Trawlers, Purse Seines, Set Gillnets,\nand Pots and Traps between September to November",
     x = NULL,
     y = NULL,
     caption = "Data: Global Fishing Watch AIS (2017-2024)"
@@ -244,11 +217,11 @@ ais_ridgeline <-ggplot(fleet_agg_gear_month,
     plot.background = element_rect(fill = "#FCFCFA", color = NA),
     panel.background = element_rect(fill = "#FCFCFA", color = NA),
     panel.grid = element_blank(),
-    
-    legend.position = "none",
+    legend.position = "right",
     panel.spacing = unit(0.1, "lines"),
+    text = element_text(family = "sourcesans"),
    plot.title = element_text(
-  family = "sarala",
+  family = "sourcesans",
   size = 20,
   face = "bold",
   color = "#0D1B2A",
@@ -256,12 +229,14 @@ ais_ridgeline <-ggplot(fleet_agg_gear_month,
   margin = margin(b = 3)
 ),
     plot.subtitle = element_text(
+      family = "merriweather",
       size = 14,
       color = "#5A6670",
       hjust = 0,
       margin = margin(b = 18)
     ),
     plot.caption = element_text(
+      family = "merriweather", 
       size = 10,
       color = "#888888",
       hjust = 1,
@@ -280,9 +255,17 @@ ais_ridgeline <-ggplot(fleet_agg_gear_month,
       size = 13,
       margin = margin(t = 5)
     ),
-    
-    plot.margin = margin(25, 25, 15, 25)
-  )
+    plot.margin = margin(25, 25, 15, 25), 
+    legend.title = element_text(
+       family = "merriweather",
+       face = "bold",
+       size = 12
+        ),
+    legend.text = element_text(
+    family = "merriweather",
+     size = 10
+      )
+    )
 ais_ridgeline
 
 # ggsave(
@@ -296,6 +279,8 @@ ais_ridgeline
 # )
 ```
 
+**Alt-Text**: Ridgeline plot showing seasonal fishing effort by gear type in Chumash Heritage National Marine Sanctuary. Fishing activity peaks in fall, with strong overlaps among trawlers, purse seines, set gillnets, and pots and traps between September and November. The color gradient encodes seasonality, transitioning from dark blue in December to March, to lighter blue in April, shifting to yellow and orange during the summer months from June to August, and returning from lighter blue to darker blue in October through December.
+
 In this ridgeline plot, the x-axis represents month, and the y-axis lists fishing gear types as categorical groups. Fishing hours are not plotted on a shared numeric y-axis; instead, they are encoded in the height and shape of each ridgeline as a smoothed distribution of AIS-detected fishing activity across months within each gear type. As a result, ridge height reflects relative seasonal intensity and the timing of peak activity rather than absolute fishing effort. This visualization is intended to highlight seasonal patterns and overlap in gear use, while total fishing effort by gear type is shown separately using an aggregated bar plot.
 
 #### Density Plot
@@ -303,15 +288,31 @@ In this ridgeline plot, the x-axis represents month, and the y-axis lists fishin
 Adding CA state outline to plot
 
 ```{r}
-# library(rnaturalearth)
-# library(rnaturalearthdata)
 
-# Get California state outline
-library(tigris)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
 
-california <- states(cb = FALSE, resolution = "500k") %>% 
-  filter(NAME == "California") %>% 
-  st_transform(crs = 4326)
+# High-resolution land polygons
+land <- ne_download(
+  scale = 10,
+  type = "land",
+  category = "physical",
+  returnclass = "sf"
+) %>%
+  st_transform(4326)
+
+# California bounding box for zoomed out plot 
+ca_bbox <- st_as_sfc(st_bbox(c(xmin = -125, xmax = -114, ymin = 32, ymax = 42), crs = 4326))
+
+# Clip to California
+california <- st_intersection(land, ca_bbox)
+
+chnms_bbox <- st_as_sfc(st_bbox(boundary)) %>% st_buffer(0.1) # add small buffer offshore
+
+# Mask fleet to ocean only
+fleet_ocean <- fleet_sf[!st_intersects(fleet_sf, california, sparse = FALSE), ]
+fleet_ocean_df <- st_drop_geometry(fleet_ocean)
 ```
 
 ```{r}
@@ -321,37 +322,130 @@ california <- states(cb = FALSE, resolution = "500k") %>%
 #| message: false
 #| fold: true
 
-boundary_ocean <- st_difference(boundary, california)
+
 
 ggplot() +
   geom_sf(data = california, fill = "gray90", color = "gray50") +
-  geom_sf(data = boundary_ocean, fill = NA, color = "black") +
+  geom_sf(data = boundary, fill = NA, color = "black")+
+  geom_sf(data = fleet_ocean, fill = NA, color = "white") +
   stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
               bins = 20) +
-  scale_fill_viridis_c(option = "viridis", direction = -1) +
-  theme_void() +
+  scale_fill_viridis_c(option = "viridis", direction = -1, name = "Fishing Hours") +
+  theme_void()+
+  theme(
+    plot.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.grid = element_blank(),
+    legend.position = "right",
+    panel.spacing = unit(0.1, "lines"),
+    text = element_text(family = "sourcesans"),
+   plot.title = element_text(
+  family = "sourcesans",
+  size = 20,
+  face = "bold",
+  color = "#0D1B2A",
+  hjust = 0,
+  margin = margin(b = 3)
+),
+    plot.subtitle = element_text(
+      family = "merriweather",
+      size = 14,
+      color = "#5A6670",
+      hjust = 0,
+      margin = margin(b = 18)
+    ),
+    plot.caption = element_text(
+      family = "merriweather", 
+      size = 10,
+      color = "#888888",
+      hjust = 1,
+      margin = margin(t = 12)
+    ),
+    plot.margin = margin(25, 25, 15, 25), 
+    legend.title = element_text(
+       family = "merriweather",
+       face = "bold",
+       size = 12
+        ),
+    legend.text = element_text(
+    family = "merriweather",
+     size = 10
+      ))+
   labs(title = "AIS-Vessel Fishing effort density in Chumash Heritage National Marine Sanctuary", 
-       subtitle = "Fishing effort is aggregated in the northest part of boundary\n and along offshore middle area near Rodriguez Seamount.", 
+       subtitle = "Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region.", 
        caption = "Data Source : Global Fishing Watch (2017-2024)")
 ```
 
 ```{r}
 
-ggplot() +
-  geom_sf(data = california, fill = "gray90", color = "gray50") +
-  geom_sf(data = boundary_ocean, fill = NA, color = "black") +
-  stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
-              bins = 25) +
-  scale_fill_viridis_c(option = "viridis", direction = -1) +
-  coord_sf(xlim = c(bbox["xmin"], bbox["xmax"]), 
-           ylim = c(bbox["ymin"], bbox["ymax"])) +
-  theme_void() +
+#zoomed in version of just sanctuary 
+
+density_plot <- ggplot() +
+  geom_sf(data = land, fill = "gray90", color = "gray50") +
+  geom_sf(data = boundary, fill = NA, color = "blue", size = 1) +
+  stat_bin_2d(data = fleet_ocean, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
+              bins = 35) +
+  scale_fill_viridis_c(option = "viridis", direction = -1, name = "Fishing Hours") +
   labs(title = "AIS-Vessel Fishing effort density in Chumash Heritage National Marine Sanctuary", 
-       subtitle = "Fishing effort is aggregated in the northest part of boundary\n and along offshore middle area near Rodriguez Seamount.", 
-       caption = "Data Source : Global Fishing Watch (2017-2024)")
+       subtitle = "Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region.", 
+       caption = "Data Source : Global Fishing Watch (2017-2024)")+
+  theme_void() +
+  theme(
+    plot.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.grid = element_blank(),
+    legend.position = "right",
+    panel.spacing = unit(0.1, "lines"),
+    text = element_text(family = "sourcesans"),
+   plot.title = element_text(
+  family = "sourcesans",
+  size = 50,
+  face = "bold",
+  color = "#0D1B2A",
+  hjust = 0,
+  margin = margin(b = 3)
+),
+    plot.subtitle = element_text(
+      family = "merriweather",
+      size = 45,
+      color = "#5A6670",
+      hjust = 0,
+      margin = margin(b = 18)
+    ),
+    plot.caption = element_text(
+      family = "merriweather", 
+      size = 40,
+      color = "#888888",
+      hjust = 1,
+      margin = margin(t = 12)
+    ),
+    plot.margin = margin(25, 25, 15, 25), 
+    legend.title = element_text(
+       family = "merriweather",
+       face = "bold",
+       size = 40
+        ),
+    legend.text = element_text(
+    family = "merriweather",
+     size = 35
+      ))+
+  coord_sf(xlim = st_bbox(chnms_bbox)[c("xmin", "xmax")],
+           ylim = st_bbox(chnms_bbox)[c("ymin", "ymax")])
+
+ggsave(
+  filename = here::here("figures", "ais_density.png"),
+  plot = density_plot,
+  device = "png",
+  width = 15,
+  height = 10,
+  unit = "in",
+  dpi = 300
+)
 ```
 
-#### Circle Bar Plot
+**Alt-text**: AIS-based fishing effort in the Chumash Heritage National Marine Sanctuary. Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region, near known seafloor features such as seamounts. Data are binned into 35 cells, with the summed apparent fishing hours represented on a viridis gradient: higher effort areas are shown in purple, and lower effort areas in yellow.
+
+Circle Bar Plot
 
 ```{r}
 #| echo: false
@@ -368,7 +462,7 @@ library(stringr)
 
 mean_hours <- mean(fleet_agg_gear$total_fishing_hours)
 
-ggplot(fleet_agg_gear) +
+circle_plot <- ggplot(fleet_agg_gear) +
   # Custom circular grid lines
   geom_hline(
     aes(yintercept = y),
@@ -429,13 +523,103 @@ ggplot(fleet_agg_gear) +
     x = NULL,
     fill = "Gear Type"
   ) +
-  
   theme_minimal() +
   theme(
-    axis.title = element_blank(),
-    axis.ticks = element_blank(),
-    axis.text.y = element_blank(),  # remove radial axis text for cleaner look
-    panel.grid = element_blank()    # remove default grid 
-  )
+  axis.title = element_blank(),
+  axis.ticks = element_blank(),
+  panel.grid = element_blank(),
+  plot.background = element_rect(fill = "#FCFCFA", color = NA),
+  panel.background = element_rect(fill = "#FCFCFA", color = NA),
+  legend.position = "none",
+  panel.spacing = unit(0.1, "lines"),
+  text = element_text(family = "sourcesans"),
+  
+  plot.title = element_text(
+    size = 50, 
+    face = "bold",
+    color = "#0D1B2A",
+    hjust = 0,
+    margin = margin(b = 3)
+  ),
+  plot.subtitle = element_text(
+    family = "merriweather",
+    size = 45,
+    color = "#5A6670",
+    hjust = 0,
+    margin = margin(b = 10)
+  ),
+  plot.caption = element_text(
+    family = "merriweather", 
+    size = 40,
+    color = "#888888",
+    hjust = 1,
+    margin = margin(t = 8)
+  ),
+  plot.margin = margin(25, 25, 15, 25), 
+  legend.title = element_text(
+    family = "merriweather",
+    face = "bold",
+    size = 40
+  ),
+  legend.text = element_text(
+    family = "merriweather",
+    size = 35
+  ), 
+  axis.text.x = element_text(
+    family = "merriweather",
+    size = 35,      
+    color = "#0D1B2A",
+    lineheight = 0.5,
+    face = "bold"
+  ),
+  axis.text.y = element_text(
+  family = "merriweather",
+  size = 18,
+  color = "gray30")
+)
 
+ggsave(
+  filename = here::here("figures", "ais_circle.png"),
+  plot = circle_plot,
+  device = "png",
+  width = 15,
+  height = 10,
+  unit = "in",
+  dpi = 300
+)
 ```
+
+**Alt-text** : Fishing effort by gear type in Chumash Heritage National Marine Sanctuary, shown as a circular bar plot. Pole and line and purse seine–related gear types dominate the sanctuary, while set gillnets and pots and traps contribute relatively low effort. The mean fishing hours across all gear types is indicated by a gray dot at 776.87 hours. Bars have distinct colors for each gear type.
+
+### Questions
+
+1.  What are the key insights you want your infographic to communicate, and how will your design choices help highlight and support those messages?
+    -   Ridgeline plot - seasonal fishing gear by type: I want to highlight that fishing activity in the sanctuary is highly seasonal, with clear peaks during fall months (September-November) and lower effort in winter and spring. Certain gear types dominate at different times of the year. The design insights are that the stacked ridgeline uses a seasonal color gradient to visually show time progression throughout the year. The transparency and height of ridgelines still highlights overlapping gear activity while still showing relative magnitude.
+    -   Density plot- spatial concentration of fishing effort: I want to show that fishing is concentrated in certain parts of the sanctuary boundaries. This highlights where monitoring or management insight can be taken into consideration. For designed I used a binned density with a viridis color gradient to show areas of high versus low fishing hours. Buffering the sanctuary boundaries slightly prevents overlap with the land making offshore patterns clear.
+    -   Circular bar plot- total fishing hours by gear type: I want to highlight that there are certain gears that dominate the sanctuary's AIS fishing effort, and some are minimal. The mean fishing hours across gear types provides a reference for comparison. For design, the circular layout draws attentions to the differences in hours between gear types. Adding distinct colors makes the categorical variables easy to distinguish.
+2.  What challenges did you encounter or anticipate encountering as you continue to build / iterate on your visualizations in R? If you struggled with mocking up any of your three visualizations, describe those challenges here.
+    -   Ridgeline plot: I had trouble incorporating the seasonal legend directly in R. The plot shows peaks by gear type and month, the color gradient for seasons (December–March, April–August, September–November) is not reflected in the legend. I plan to finalize this legend in Affinity.
+
+    -   Density plot: The binned 2D histogram looks blocky, and I would like to smooth the density representation to highlight gradients of fishing effort. I have a high-resolution coastline for California, the overall state outline becomes merged with the land polygon, so I need to work on getting a distinct boundary of the state to provide better geographic context.
+
+    -   Circular plot: Adding numeric hour breaks along the radial lines of the circle plot was challenging. The y-axis labels do not naturally follow the curvature of the circle, making it difficult to communicate scale. So I will also finish that up in Affinity.
+3.  What ggplot extension tools / packages do you need to use to build your visualizations? Are there any that we haven’t covered in class that you’ll be learning how to use for your visualizations?
+    -   **ggridges** for the ridgeline plot to show seasonal fishing effort across gear types.
+
+        **scales** to format y-axis labels and create log transformations for better visual clarity.
+
+        **RColorBrewer and viridis** for color palettes.
+
+        **ggtext** to use custom fonts for titles, subtitles, captions, and legends.
+
+        **sf and rnaturalearth** to handle spatial data and plot the density and boundary maps.
+
+        **dplyr, forcats, and stringr** for data wrangling, reordering factor levels, and wrapping text labels.
+
+    -    I think we have gone over all of these in class except **forcats** I don't anticipate bringing in other packages.
+4.  What feedback do you need from the instructional team and / or your peers to ensure that your intended message and key insights are clear?
+    -   I’d like feedback on whether the main messages of my three plots: seasonal trends in fishing (ridgeline), where fishing is concentrated offshore (density map), and total effort by gear type (circle plot) come across clearly.
+        -   Ridgeline: Does the seasonal legend make it easy to see patterns across months? Are the gear types easy to tell apart?
+        -   Density: Can people quickly see where the most fishing is happening offshore? Does the color scale make sense?
+        -   Circle plot: Are the gear type labels around the circle readable? Do the mean dots help highlight overall effort? I log scaled the y-axis to show relative magnitude, should I keep it?
+        -   Any thoughts on font size, label placement, or whether the plots make sense on their own would be really helpful.
