@@ -1,8 +1,16 @@
 ---
 title: "Drafting Viz (FPM #3)"
 author: "Sarayu Ramnath"
-format: html
-editor: visual
+date: "February 22, 2026"
+format:
+  html:
+    embed-resources: true
+    theme: simplex
+    toc: true
+execute:
+  echo: false
+  message: false
+  warning: false
 ---
 
 ## Objective
@@ -77,7 +85,7 @@ I was looking to add the the state outline along the hotspot density map, so I'm
 
 -   I liked being able to put in a mean effort hours line.
 
-### Hand Drawing Anticipated Visualizations
+## Hand Drawing Anticipated Visualizations
 
 ![](images/20260221_130438.jpg)
 
@@ -85,16 +93,16 @@ I was looking to add the the state outline along the hotspot density map, so I'm
 
 ![](images/20260221_132436.jpg)
 
-### Recreating Hand Drawn Visualizations with Code
+## Recreating Hand Drawn Visualizations with Code
 
-#### Load and process data
+### Load and process data
 
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
-#| fold: false
+#| fold: true
 
 library(ggplot2)
 library(sf)
@@ -150,10 +158,10 @@ fleet_agg_gear <- fleet %>%
 
 ```{r}
 #| echo: false
+#| fold: true
 #| eval: true
 #| warning: false
 #| message: false
-#| fold: false
 
 library(monochromeR)
 library(showtext)
@@ -171,14 +179,14 @@ showtext_auto()
 
 ```
 
-#### Ridgeline Plot
+### Ridgeline Plot
 
 ```{r}
 #| echo: false
 #| eval: true
 #| warning: false
 #| message: false
-#| fold: false
+#| fold: true
 
 library(ggridges)
 library(ggplot2)
@@ -283,11 +291,16 @@ ais_ridgeline
 
 In this ridgeline plot, the x-axis represents month, and the y-axis lists fishing gear types as categorical groups. Fishing hours are not plotted on a shared numeric y-axis; instead, they are encoded in the height and shape of each ridgeline as a smoothed distribution of AIS-detected fishing activity across months within each gear type. As a result, ridge height reflects relative seasonal intensity and the timing of peak activity rather than absolute fishing effort. This visualization is intended to highlight seasonal patterns and overlap in gear use, while total fishing effort by gear type is shown separately using an aggregated bar plot.
 
-#### Density Plot
+### Density Plot
 
 Adding CA state outline to plot
 
 ```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: false
 
 library(sf)
 library(rnaturalearth)
@@ -377,7 +390,11 @@ ggplot() +
 ```
 
 ```{r}
-
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
 #zoomed in version of just sanctuary 
 
 density_plot <- ggplot() +
@@ -432,20 +449,22 @@ density_plot <- ggplot() +
   coord_sf(xlim = st_bbox(chnms_bbox)[c("xmin", "xmax")],
            ylim = st_bbox(chnms_bbox)[c("ymin", "ymax")])
 
-ggsave(
-  filename = here::here("figures", "ais_density.png"),
-  plot = density_plot,
-  device = "png",
-  width = 15,
-  height = 10,
-  unit = "in",
-  dpi = 300
-)
+# ggsave(
+#   filename = here::here("figures", "ais_density.png"),
+#   plot = density_plot,
+#   device = "png",
+#   width = 15,
+#   height = 10,
+#   unit = "in",
+#   dpi = 300
+# )
 ```
+
+![](figures/ais_density.png)
 
 **Alt-text**: AIS-based fishing effort in the Chumash Heritage National Marine Sanctuary. Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region, near known seafloor features such as seamounts. Data are binned into 35 cells, with the summed apparent fishing hours represented on a viridis gradient: higher effort areas are shown in purple, and lower effort areas in yellow.
 
-Circle Bar Plot
+### Circle Bar Plot
 
 ```{r}
 #| echo: false
@@ -453,7 +472,7 @@ Circle Bar Plot
 #| warning: false
 #| message: false
 #| fold: true
-#| 
+
 library(ggplot2)
 library(dplyr)
 library(scales)
@@ -578,16 +597,18 @@ circle_plot <- ggplot(fleet_agg_gear) +
   color = "gray30")
 )
 
-ggsave(
-  filename = here::here("figures", "ais_circle.png"),
-  plot = circle_plot,
-  device = "png",
-  width = 15,
-  height = 10,
-  unit = "in",
-  dpi = 300
-)
+# ggsave(
+#   filename = here::here("figures", "ais_circle.png"),
+#   plot = circle_plot,
+#   device = "png",
+#   width = 15,
+#   height = 10,
+#   unit = "in",
+#   dpi = 300
+# )
 ```
+
+![](figures/ais_circle.png)
 
 **Alt-text** : Fishing effort by gear type in Chumash Heritage National Marine Sanctuary, shown as a circular bar plot. Pole and line and purse seine–related gear types dominate the sanctuary, while set gillnets and pots and traps contribute relatively low effort. The mean fishing hours across all gear types is indicated by a gray dot at 776.87 hours. Bars have distinct colors for each gear type.
 
