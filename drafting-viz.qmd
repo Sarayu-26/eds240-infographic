@@ -1,0 +1,441 @@
+---
+title: "Drafting Viz (FPM #3)"
+author: "Sarayu Ramnath"
+format: html
+editor: visual
+---
+
+## Objective
+
+### What does AIS-detected fishing activity look like in Chumash Heritage National Marine Sanctuary?
+
+-   Seasonal patterns, gear use, and spatial hotspots derived from Global Fishing Watch AIS Data
+
+### When (Seasonality) : Ridgeline Plot
+
+#### How does the seasonal timing of AIS-detected fishing activity vary by gear type across months within Chumash Heritage National Marine Sanctuary?
+
+Seasonal use of gear types by month to understand temporal patterns of use within the Sanctuary. This will inform readers about timing and seasonality, overlap or separation in gear use across months, and whether certain gears are seasonal or year-round.
+
+### Where (Spatially) : Density Hotspot Map
+
+#### Where are the spatial hotspots of AIS-detected fishing activity within Chumash Heritage National Marine Sanctuary?
+
+In understanding where spatial hotspots of fishing activity are, this can inform readers where fishing concentrates spatially, whether activity is diffuse or clustered, and areas of potential overlap with sensitive habitats or biologically important areas.
+
+### What (Magnitude): Bar Plot
+
+#### How is overall AIS-detected fishing effort distributed among different gear types in Chumash Heritage National Marine Sanctuary?
+
+By organizing the summed fishing effort hours by gear types, this will inform readers the relative dominance and composition of gear types, which gears contribute to overall AIS-detected fishing effort.
+
+\*\* These questions have not changed since FPM #1\*\*
+
+### Methods (Variables of Use)
+
+I used a processed dataset of AIS-detected fishing activity from Global Fishing Watch covering vessels operation within Chumash Heritage National Marine Sanctuary from 2017-2024. After filtering fishing effort to the Sanctuary boundary using latitude and longitude coordinates, the dataset provides information on observation date (year, month), fishing gear type, vessel presence, and fishing effort (measured by fishing hours).
+
+-   Seasonal patterns in gear use: I used variables month, year, gear type, and fishing hours*,* which will allow comparison of how AIS-detected fishing activity by gear type varies throughout the year.
+
+-   Spatial hotspots of fishing activity: I used the latitude and longitude of Global Fishing Watch fishing effort grid cells in combination with fishing hours to visualize the density and concentration of fishing effort within the Sanctuary.
+
+-   Overall fishing effort by gear type: I aggregated fishing hours by gear type across the full time period (2017-2024) to understand the magnitude and composition of fishing effort by gear type.
+
+## Data Viz Inspo!
+
+#### Ridgeline Plot
+
+[![FIgure 1. Ridgeline plot of mean temperatures by month in Lincoln NE in 2016. (Credit Claus O. Wilke)](images/ridgeline_plotex.png)](https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html)
+
+<https://cran.r-project.org/web/packages/ggridges/vignettes/introduction.html>
+
+This is a little different than how my ridgeplot will go, and I've thought about if I should change it but the ridgeplot is pretty good for showing seasonality although I've gone through examples and it's rare to see month on the x-axis and categorical variables (gear types) on the y-axis. So based on this figure and comparing it to mine, I am swapping the variables for:
+
+-   x-axis: month (ordered categorical variable Jan-Dec. Gives temporal structure.
+
+-   y axis: gear type (categorical), controls vertical placement of each ridge but does not have numeric meaning.
+
+-   Ridge height (the peaks): relative density of fishing hours, which is where the hours will appear visually. The height would reflect how fishing hours are distributed across months within a gear type. The scale will be normalized.
+
+#### Density Hotspot Map
+
+[![Fig. 2 Species Richness of 16 Cetacean Species along the Coast of California. Presence of Cetacean species was determined with with a probability threshold of 0.6 or greater. (Credit: Elmera Azadpour)](images/cetacean_richness.png)](https://elmeraa-usgs.github.io/posts/2021-03-07-cetacean-richness/cetacean-richness.html)
+
+<https://elmeraa-usgs.github.io/posts/2021-03-07-cetacean-richness/cetacean-richness.html>
+
+I was looking to add the the state outline along the hotspot density map, so I'm looking through the code to see where in the process Azadpour pulled in the shapefile of the stateoutline so the layers can go : state outline–\> sanctuary boundary outline –\> overlay of hotspot density of aggregated fishing hours. This way the sanctuary outline won't be floating in white space, I need something to ground it to.
+
+#### Bar Plot
+
+[![Figure 3: This Visualisation shows the cummulative length of tracks, the amount of tracks and the mean gain in elevation per location for a set of hikes in the Washington area. (Credit Tobias Sandler)](images/circular_barplot.png)](https://r-graph-gallery.com/web-circular-barplot-with-R-and-ggplot2.html)
+
+<https://r-graph-gallery.com/web-circular-barplot-with-R-and-ggplot2.html>
+
+-   Legend : incorporate as number of aggregated/ normalized fishing effort hours
+
+-   I liked that each bar was a different categorical variable, which will be the same for the gear types
+
+-   I liked being able to put in a mean effort hours line.
+
+### Hand Drawing Anticipated Visualizations
+
+![](images/20260221_130438.jpg)
+
+![](images/20260221_131701.jpg)
+
+![](images/20260221_132436.jpg)
+
+### Recreating Hand Drawn Visualizations with Code
+
+#### Load and process data
+
+```{r}
+library(ggplot2)
+library(sf)
+library(readr)
+library(dplyr)
+library(forcats)
+library(tidyverse)
+
+#read in data file and shapefile boundary from "Data" 
+fleet <-read.csv("data/fleet_chnms_2017_2024.csv")
+
+# Load boundary again as sf
+boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
+  st_transform(4326)
+
+# Load boundary again as sf
+boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
+  st_transform(4326)
+
+# Convert fleet CSV back to sf for plotting
+fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326)
+
+#need to aggregate by fishing hours by lat long
+fleet_agg_fishing <- fleet %>%
+  group_by(cell_ll_lat, cell_ll_lon) %>%
+  summarise(total_hours = sum(fishing_hours, na.rm = TRUE))
+
+#aggregrate by gear type with fishing hours
+fleet_agg_gear <- fleet %>%
+  group_by(geartype_label) %>%
+  summarise(
+    total_fishing_hours = sum(hours, na.rm = TRUE)
+  )%>%
+  filter(geartype_label != "Fishing") #removed fishing because it skewed data 
+  
+#aggregate gear type by season (ridgeline prep)
+ fleet_agg_gear_month <- fleet %>%
+  group_by(geartype_label) %>%
+  mutate(total_gear_hours = sum(fishing_hours, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(
+    geartype_label = fct_reorder(
+      geartype_label,
+      total_gear_hours,
+      .desc = TRUE
+    )
+  )
+ 
+ #aggregate gear type by month (ridgeline/ heatmap)
+group_by(geartype_label, month) %>%
+  summarise(
+    total_fishing_hours = sum(fishing_hours, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
+  mutate(
+    geartype_label = fct_reorder(
+      geartype_label,
+      total_fishing_hours,
+      sum,
+      .desc = TRUE
+    )
+  )
+ 
+
+# fleet_agg_gear_month1 <- fleet %>%
+#   
+#   # Add season
+#  mutate(
+#     season = case_when(
+#       month %in% c(12,1,2) ~ "December-February",
+#       month %in% 3:5 ~ "March-May",
+#       month %in% 6:8 ~ "June-August",
+#       month %in% 9:11 ~ "September-November"
+#     ),
+#     season = factor(season, levels = c("December-February", "March-May", "June-August", "September-November"))
+#   )%>%
+#   
+#   # Aggregate by gear type and month for ridgeline plot
+#   group_by(geartype_label, month) %>%
+#   summarise(
+#     total_fishing_hours = sum(fishing_hours, na.rm = TRUE),
+#     .groups = "drop"
+#   ) %>%
+#   
+#   # Reorder gear types for plotting
+#   mutate(
+#     geartype_label = fct_reorder(geartype_label, total_fishing_hours, sum, .desc = TRUE)
+#   )
+```
+
+#### Set Themes
+
+```{r}
+library(monochromeR)
+library(showtext)
+library(glue)
+#......................import Google fonts.......................
+# `name` is the name of the font as it appears in Google Fonts
+# `family` is the user-specified id that you'll use to apply a font in your ggplot
+font_add_google(name = "Sarala", family = "sarala")
+font_add_google(name = "Noto Sans", family = "noto-sans")
+font_add_google(name = "Red Hat Mono", family = "red")
+#....................import Font Awesome fonts...................
+font_add(family = "fa-brands", 
+         regular = here::here("fonts", "Font Awesome 7 Brands-Regular-400.otf")
+)
+showtext_auto()
+```
+
+#### Ridgeline Plot
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+
+library(ggridges)
+library(ggplot2)
+library(viridis)
+
+ais_ridgeline <-ggplot(fleet_agg_gear_month,
+       aes(x = month,
+           y = reorder(geartype_label, total_gear_hours, FUN = sum),
+           fill = after_stat(x))) +
+  geom_density_ridges_gradient(
+    scale = 1.9,
+  rel_min_height = 0.01,
+  alpha = 1,      
+  color = "#1a1a1a", 
+  size = 0.4
+  ) +
+  scale_x_continuous(
+    breaks = 1:12,
+    labels = month.abb,
+    expand = c(0.01, 0)
+  ) +
+  scale_fill_gradientn(
+    colors = alpha(c("#3B5F8F", "#5A8CAE","#7FB8D4", "#FFD580", "#FFA040","#7FB8D4", "#A8D5E2","#5A8CAE"),
+                   0.7),
+    name = "Month", 
+  ) +
+  labs(
+    title = "Seasonal fishing effort by gear type",
+    subtitle = "Fishing peaks in fall months in Chumash Heritage National Marine Sanctuary,\nwith significant overlaps with Trawlers, Purse Seines, Set Gillnets,\nand Pots and Traps between September to November",
+    x = NULL,
+    y = NULL,
+    caption = "Data: Global Fishing Watch AIS (2017-2024)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.grid = element_blank(),
+    
+    legend.position = "none",
+    panel.spacing = unit(0.1, "lines"),
+   plot.title = element_text(
+  family = "sarala",
+  size = 20,
+  face = "bold",
+  color = "#0D1B2A",
+  hjust = 0,
+  margin = margin(b = 3)
+),
+    plot.subtitle = element_text(
+      size = 14,
+      color = "#5A6670",
+      hjust = 0,
+      margin = margin(b = 18)
+    ),
+    plot.caption = element_text(
+      size = 10,
+      color = "#888888",
+      hjust = 1,
+      margin = margin(t = 12)
+    ),
+    
+    axis.text.y = element_text(
+      color = "#0D1B2A",
+      size = 14,
+      face = "bold",
+      hjust = 1,
+      margin = margin(r = 10)
+    ),
+    axis.text.x = element_text(
+      color = "#5A6670",
+      size = 13,
+      margin = margin(t = 5)
+    ),
+    
+    plot.margin = margin(25, 25, 15, 25)
+  )
+ais_ridgeline
+
+# ggsave(
+#   filename = here::here("figures", "ais_ridgeline.png"),
+#   plot = ais_ridgeline,
+#   device = "png",
+#   width = 15,
+#   height = 10,
+#   unit = "in",
+#   dpi = 300
+# )
+```
+
+In this ridgeline plot, the x-axis represents month, and the y-axis lists fishing gear types as categorical groups. Fishing hours are not plotted on a shared numeric y-axis; instead, they are encoded in the height and shape of each ridgeline as a smoothed distribution of AIS-detected fishing activity across months within each gear type. As a result, ridge height reflects relative seasonal intensity and the timing of peak activity rather than absolute fishing effort. This visualization is intended to highlight seasonal patterns and overlap in gear use, while total fishing effort by gear type is shown separately using an aggregated bar plot.
+
+#### Density Plot
+
+Adding CA state outline to plot
+
+```{r}
+# library(rnaturalearth)
+# library(rnaturalearthdata)
+
+# Get California state outline
+library(tigris)
+
+california <- states(cb = FALSE, resolution = "500k") %>% 
+  filter(NAME == "California") %>% 
+  st_transform(crs = 4326)
+```
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+
+boundary_ocean <- st_difference(boundary, california)
+
+ggplot() +
+  geom_sf(data = california, fill = "gray90", color = "gray50") +
+  geom_sf(data = boundary_ocean, fill = NA, color = "black") +
+  stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
+              bins = 20) +
+  scale_fill_viridis_c(option = "viridis", direction = -1) +
+  theme_void() +
+  labs(title = "AIS-Vessel Fishing effort density in Chumash Heritage National Marine Sanctuary", 
+       subtitle = "Fishing effort is aggregated in the northest part of boundary\n and along offshore middle area near Rodriguez Seamount.", 
+       caption = "Data Source : Global Fishing Watch (2017-2024)")
+```
+
+```{r}
+
+ggplot() +
+  geom_sf(data = california, fill = "gray90", color = "gray50") +
+  geom_sf(data = boundary_ocean, fill = NA, color = "black") +
+  stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
+              bins = 25) +
+  scale_fill_viridis_c(option = "viridis", direction = -1) +
+  coord_sf(xlim = c(bbox["xmin"], bbox["xmax"]), 
+           ylim = c(bbox["ymin"], bbox["ymax"])) +
+  theme_void() +
+  labs(title = "AIS-Vessel Fishing effort density in Chumash Heritage National Marine Sanctuary", 
+       subtitle = "Fishing effort is aggregated in the northest part of boundary\n and along offshore middle area near Rodriguez Seamount.", 
+       caption = "Data Source : Global Fishing Watch (2017-2024)")
+```
+
+#### Circle Bar Plot
+
+```{r}
+#| echo: false
+#| eval: true
+#| warning: false
+#| message: false
+#| fold: true
+#| 
+library(ggplot2)
+library(dplyr)
+library(scales)
+library(stringr)
+
+
+mean_hours <- mean(fleet_agg_gear$total_fishing_hours)
+
+ggplot(fleet_agg_gear) +
+  # Custom circular grid lines
+  geom_hline(
+    aes(yintercept = y),
+    data.frame(y = c(0, 100, 500, 1000, 2500)),  # adjust to range
+    color = "lightgrey"
+  ) +
+  
+  # Bars colored by gear type
+  geom_col(
+    aes(
+      x = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
+      y = total_fishing_hours,
+      fill = geartype_label
+    ),
+    position = "dodge2",
+    show.legend = TRUE,
+    alpha = 0.9,
+    width = 0.6
+  ) +
+  
+  # Mean effort hours dot
+  geom_point(
+    aes(
+      x = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
+      y = mean_hours
+    ),
+    size = 3,
+    color = "gray12"
+  ) +
+  
+  # Lollipop shaft to mean line
+  geom_segment(
+    aes(
+      x = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
+      y = 0,
+      xend = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
+      yend = mean_hours
+    ),
+    linetype = "dashed",
+    color = "gray12"
+  ) +
+  
+  # Make it circular
+  coord_polar() +
+  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(10), 
+                  name = "Gear Type")+
+  scale_y_continuous(
+     trans = "log1p",#log to see other lower gear types clearly
+    labels = comma,
+     breaks = c(0, 100, 500, 1000, 2500),
+    name = "Total Fishing Hours"
+  ) +
+  
+  labs(
+    title = "AIS-detected fishing effort by gear type in Chumash Heritage National Marine Sanctuary",
+    subtitle = "Pole and line and purse seine adjacent gear types dominate in the sanctuary",
+    caption = "Data Source: Global Fishing Watch (2017-2024)",
+    x = NULL,
+    fill = "Gear Type"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    axis.title = element_blank(),
+    axis.ticks = element_blank(),
+    axis.text.y = element_blank(),  # remove radial axis text for cleaner look
+    panel.grid = element_blank()    # remove default grid 
+  )
+
+```
