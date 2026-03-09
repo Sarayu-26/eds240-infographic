@@ -37,6 +37,33 @@ library(tidyverse)
 # Load the processed CSV
 fleet <- read_csv("data/fleet_chnms_2017_2024.csv")
 
+#adding readable gear labels by first creating a lookup table 
+gear_labels <- c(
+  drifting_longlines = "Drifting Longlines",
+  fishing = "Fishing",
+  fixed_gear = "Fixed Gear",
+  other_purse_seines = "Other Purse Seines",
+  pole_and_line = "Pole and Line",
+  pots_and_traps = "Pots and Traps",
+  purse_seines = "Purse Seines",
+  set_gillnets = "Set Gillnets",
+  set_longlines = "Set Longlines",
+  trawlers = "Trawlers",
+  trollers = "Trollers"
+)
+
+#add readable gear column to "fleet" 
+fleet <- fleet %>%
+  mutate(
+    geartype_label = recode(as.character(geartype), !!!gear_labels)
+  )
+
+#save csv with updated changes 
+write_csv(
+  fleet,
+  "data/fleet_chnms_2017_2024.csv"
+)
+
 # Load boundary again as sf
 boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
   st_transform(4326)
@@ -51,47 +78,40 @@ fleet_agg_fishing <- fleet %>%
 
 #aggregrate by gear type with fishing hours
 fleet_agg_gear <- fleet %>%
-  group_by(geartype) %>%
+  group_by(geartype_label) %>%
   summarise(
     total_fishing_hours = sum(fishing_hours, na.rm = TRUE)
   )
   
-#aggregate gear type by season
+#aggregate gear type by season (ridgeline prep)
  fleet_agg_gear_month <- fleet %>%
-  group_by(geartype) %>%
+  group_by(geartype_label) %>%
   mutate(total_gear_hours = sum(fishing_hours, na.rm = TRUE)) %>%
   ungroup() %>%
   mutate(
-    geartype = fct_reorder(geartype, total_gear_hours, .desc = TRUE)
+    geartype_label = fct_reorder(
+      geartype_label,
+      total_gear_hours,
+      .desc = TRUE
+    )
   )
  
- #aggregate gear type by month 
- fleet_agg_gear_heat <- fleet_sf %>%
-  st_drop_geometry() %>%
-  group_by(geartype, month) %>%
-  summarise(total_fishing_hours = sum(fishing_hours, na.rm = TRUE),
-            .groups = "drop") %>%
+ #aggregate gear type by month (ridgeline/ heatmap)
+group_by(geartype_label, month) %>%
+  summarise(
+    total_fishing_hours = sum(fishing_hours, na.rm = TRUE),
+    .groups = "drop"
+  ) %>%
   mutate(
-    geartype = fct_reorder(geartype, total_fishing_hours, sum, .desc = TRUE)
+    geartype_label = fct_reorder(
+      geartype_label,
+      total_fishing_hours,
+      sum,
+      .desc = TRUE
+    )
   )
  
- #add readable gear types to fleet agg gear month
- gear_labels <- c(
-  drifting_longlines = "Drifting Longlines",
-  fishing = "Fishing",
-  fixed_gear = "Fixed Gear",
-  other_purse_seines = "Other Purse Seines",
-  pole_and_line = "Pole-and-Line",
-  pots_and_traps = "Pots and Traps",
-  purse_seines = "Purse Seines",
-  set_gillnets = "Set Gillnets",
-  set_longlines = "Set Longlines",
-  trawlers = "Trawlers",
-  trollers = "Trollers"
-)
 
-fleet_agg_gear_month <- fleet_agg_gear_month %>%
-  mutate(geartype_label = recode(geartype, !!!gear_labels))
 ```
 
 ```{r}

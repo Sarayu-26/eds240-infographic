@@ -128,30 +128,40 @@ fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326
 #need to aggregate by fishing hours by lat long
 fleet_agg_fishing <- fleet %>%
   group_by(cell_ll_lat, cell_ll_lon) %>%
-  summarise(total_hours = sum(fishing_hours, na.rm = TRUE))
+  summarise(total_hours = sum(hours, na.rm = TRUE),
+            .groups = "drop")
+
+#mean gear hour per individual gear type (over active years)
+mean_hours_gear <- fleet %>%
+  filter(geartype_label != "Fishing") %>%
+  group_by(geartype_label, year) %>%
+  summarise(annual_hours = sum(hours, na.rm = TRUE), .groups = "drop") %>%
+  filter(annual_hours > 0) %>%
+  group_by(geartype_label) %>%
+  summarise(mean_hours = mean(annual_hours, na.rm = TRUE))
 
 #aggregrate by gear type with fishing hours
 fleet_agg_gear <- fleet %>%
+  filter(geartype_label != "Fishing") %>%
   group_by(geartype_label) %>%
-  summarise(
-    total_fishing_hours = sum(hours, na.rm = TRUE)
-  )%>%
-  filter(geartype_label != "Fishing") #removed fishing because it skewed data 
+  summarise(total_fishing_hours = sum(hours, na.rm = TRUE), 
+            .groups = "drop") %>%
+  left_join(mean_hours_gear, by = "geartype_label") %>%
+  mutate(
+    mean_hours     = replace_na(mean_hours, 0),
+    geartype_label = str_wrap(geartype_label, width = 8),
+    geartype_label = fct_reorder(geartype_label, total_fishing_hours)
+  )
   
 #aggregate gear type by season (ridgeline prep)
  fleet_agg_gear_month <- fleet %>%
-  group_by(geartype_label) %>%
-  mutate(total_gear_hours = sum(fishing_hours, na.rm = TRUE)) %>%
-  ungroup() %>%
-  mutate(
-    geartype_label = fct_reorder(
-      geartype_label,
-      total_gear_hours,
-      .desc = TRUE
-    )
-  )%>%
-  filter(geartype_label != "Fishing")
- 
+  filter(geartype_label != "Fishing") %>%
+  group_by(geartype_label, month) %>%
+  summarise(total_gear_hours = sum(fishing_hours, na.rm = TRUE), 
+            .groups = "drop") %>%
+  mutate(geartype_label = fct_reorder(geartype_label, 
+                                      total_gear_hours, 
+                                      .desc = TRUE))
 ```
 
 #### Set Themes
@@ -188,93 +198,81 @@ showtext_auto()
 #| message: false
 #| fold: true
 
-library(ggridges)
-library(ggplot2)
-library(viridis)
-
-ais_ridgeline <-ggplot(fleet_agg_gear_month,
+ais_ridgeline <- ggplot(fleet_agg_gear_month,
        aes(x = month,
            y = reorder(geartype_label, total_gear_hours, FUN = sum),
            fill = after_stat(x))) +
   geom_density_ridges_gradient(
     scale = 1.9,
-  rel_min_height = 0.01,
-  alpha = 1,      
-  color = "#1a1a1a", 
-  size = 0.4
+    rel_min_height = 0.01,
+    alpha = 1,      
+    color = "#1a1a1a", 
+    size = 0.4
   ) +
   scale_x_continuous(
     breaks = 1:12,
     labels = month.abb,
-    expand = c(0.01, 0)
+    expand = c(0.04, 0)
   ) +
   scale_fill_gradientn(
-    colors = alpha(c("#3B5F8F", "#5A8CAE","#7FB8D4", "#FFD580", "#FFA040","#7FB8D4", "#A8D5E2","#5A8CAE"),
-                   0.8),
-    name = "Month", 
+    colors = alpha(c("#3B5F8F", "#5A8CAE", "#7FB8D4", "#FFD580", "#FFA040",
+                     "#7FB8D4", "#A8D5E2", "#5A8CAE"), 1.0),
+    name = NULL,                          
+    guide = guide_colorbar(
+      direction    = "horizontal",
+      barwidth   = unit(0.755, "npc"),      # stretches across x-axis width
+      barheight    = unit(0.4, "cm"),
+      title.position = "top",
+      ticks        = FALSE,               # clean, no tick marks on bar
+      label        = FALSE                # month labels on x-axis serve this role
+    )
   ) +
   labs(
-    title = "Seasonal fishing effort by gear type",
-    subtitle = "Fishing peaks during fall months in Chumash Heritage National Marine Sanctuary,\nwith significant overlaps with Trawlers, Purse Seines, Set Gillnets,\nand Pots and Traps between September to November",
-    x = NULL,
-    y = NULL,
-    caption = "Data: Global Fishing Watch AIS (2017-2024)"
+    title    = "Seasonal AIS-detected fishing effort by gear type in CHNMS",
+    subtitle = "Taller peaks indicate greater fishing density.",
+    x        = NULL,
+    y        = NULL,
+    caption  = "Data: Global Fishing Watch AIS (2017-2024)"
   ) +
   theme_minimal() +
   theme(
-    plot.background = element_rect(fill = "#FCFCFA", color = NA),
+    plot.background  = element_rect(fill = "#FCFCFA", color = NA),
     panel.background = element_rect(fill = "#FCFCFA", color = NA),
-    panel.grid = element_blank(),
-    legend.position = "right",
-    panel.spacing = unit(0.1, "lines"),
-    text = element_text(family = "sourcesans"),
-   plot.title = element_text(
-  family = "sourcesans",
-  size = 20,
-  face = "bold",
-  color = "#0D1B2A",
-  hjust = 0,
-  margin = margin(b = 3)
-),
-    plot.subtitle = element_text(
-      family = "merriweather",
-      size = 14,
-      color = "#5A6670",
-      hjust = 0,
-      margin = margin(b = 18)
+    panel.grid       = element_blank(),
+    legend.position  = "bottom", 
+    legend.justification   = c(1,0),
+    legend.key.width       = unit(1, "npc"),# ← moved to bottom
+    legend.margin    = margin(t = -15, r = 0, b = 0, l = 0), # ← pull it up closer to x-axis
+    panel.spacing    = unit(0.1, "lines"),
+    text             = element_text(family = "sourcesans"),
+    plot.title       = element_text(
+      family = "sourcesans", size = 25, face = "bold",
+      color = "#0D1B2A", hjust = 0, margin = margin(b = 3)
     ),
-    plot.caption = element_text(
-      family = "merriweather", 
-      size = 10,
-      color = "#888888",
-      hjust = 1,
-      margin = margin(t = 12)
+    plot.subtitle    = element_text(
+      family = "merriweather", size = 14,
+      color = "#5A6670", hjust = 0, margin = margin(b = 20)
     ),
-    
-    axis.text.y = element_text(
-      color = "#0D1B2A",
-      size = 14,
-      face = "bold",
-      hjust = 1,
-      margin = margin(r = 10)
+    plot.caption     = element_text(
+      family = "merriweather", size = 10,
+      color = "#888888", hjust = 1, margin = margin(t = 13)
     ),
-    axis.text.x = element_text(
-      color = "#5A6670",
-      size = 13,
-      margin = margin(t = 5)
+    axis.text.y      = element_text(
+      color = "#0D1B2A", size = 16, face = "bold",
+      hjust = 1, margin = margin(r = 10)
     ),
-    plot.margin = margin(25, 25, 15, 25), 
-    legend.title = element_text(
-       family = "merriweather",
-       face = "bold",
-       size = 12
-        ),
-    legend.text = element_text(
-    family = "merriweather",
-     size = 10
-      )
-    )
+    axis.text.x      = element_text(
+      color = "#5A6670", size = 13, margin = margin(t = 5)
+    ),
+    plot.margin      = margin(25, 25, 5, 25),
+    legend.title     = element_text(
+      family = "merriweather", face = "bold", size = 12
+    ),
+    legend.text      = element_text(family = "merriweather", size = 10)
+  )
+
 ais_ridgeline
+
 
 # ggsave(
 #   filename = here::here("figures", "ais_ridgeline.png"),
@@ -284,6 +282,16 @@ ais_ridgeline
 #   height = 10,
 #   unit = "in",
 #   dpi = 300
+# )
+
+#save pdf 
+# ggsave(
+#   filename = here::here("figures", "ais_ridgeline.pdf"),
+#   plot     = ais_ridgeline,
+#   device   = cairo_pdf,
+#   width    = 15,
+#   height   = 10,
+#   units    = "in"
 # )
 ```
 
@@ -335,16 +343,25 @@ fleet_ocean_df <- st_drop_geometry(fleet_ocean)
 #| message: false
 #| fold: true
 
-
-
 ggplot() +
   geom_sf(data = california, fill = "gray90", color = "gray50") +
-  geom_sf(data = boundary, fill = NA, color = "black")+
-  geom_sf(data = fleet_ocean, fill = NA, color = "white") +
-  stat_bin_2d(data = fleet, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
-              bins = 20) +
-  scale_fill_viridis_c(option = "viridis", direction = -1, name = "Fishing Hours") +
-  theme_void()+
+  geom_sf(data = boundary, fill = NA, color = "black") +
+  stat_density_2d(
+    data = fleet_ocean_df,
+    aes(x = cell_ll_lon, y = cell_ll_lat,
+        weight = fishing_hours,
+        fill = after_stat(level),
+        alpha = after_stat(level)),
+    geom = "polygon",
+    contour = TRUE
+  ) +
+  geom_sf(data = california, fill = "gray90", color = "gray50") +  # mask density on land
+  geom_sf(data = boundary, fill = NA, color = "black") +
+  scale_fill_viridis_c(option = "viridis", direction = -1, name = "Fishing Effort\nDensity") +
+  scale_alpha(range = c(0.2, 0.9), guide = "none") +
+  coord_sf(xlim = c(-125, -114),
+           ylim = c(32, 42)) +
+  theme_void() +
   theme(
     plot.background = element_rect(fill = "#FCFCFA", color = NA),
     panel.background = element_rect(fill = "#FCFCFA", color = NA),
@@ -352,14 +369,14 @@ ggplot() +
     legend.position = "right",
     panel.spacing = unit(0.1, "lines"),
     text = element_text(family = "sourcesans"),
-   plot.title = element_text(
-  family = "sourcesans",
-  size = 20,
-  face = "bold",
-  color = "#0D1B2A",
-  hjust = 0,
-  margin = margin(b = 3)
-),
+    plot.title = element_text(
+      family = "sourcesans",
+      size = 20,
+      face = "bold",
+      color = "#0D1B2A",
+      hjust = 0,
+      margin = margin(b = 3)
+    ),
     plot.subtitle = element_text(
       family = "merriweather",
       size = 14,
@@ -368,25 +385,28 @@ ggplot() +
       margin = margin(b = 18)
     ),
     plot.caption = element_text(
-      family = "merriweather", 
+      family = "merriweather",
       size = 10,
       color = "#888888",
       hjust = 1,
       margin = margin(t = 12)
     ),
-    plot.margin = margin(25, 25, 15, 25), 
+    plot.margin = margin(25, 25, 15, 25),
     legend.title = element_text(
-       family = "merriweather",
-       face = "bold",
-       size = 12
-        ),
+      family = "merriweather",
+      face = "bold",
+      size = 12
+    ),
     legend.text = element_text(
-    family = "merriweather",
-     size = 10
-      ))+
-  labs(title = "AIS-Vessel Fishing effort density in Chumash Heritage National Marine Sanctuary", 
-       subtitle = "Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region.", 
-       caption = "Data Source : Global Fishing Watch (2017-2024)")
+      family = "merriweather",
+      size = 10
+    )
+  ) +
+  labs(
+    title = "AIS-Vessel Fishing Effort Density in Chumash Heritage National Marine Sanctuary",
+    subtitle = "Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region.",
+    caption = "Data Source: Global Fishing Watch (2017-2024)"
+  )
 ```
 
 ```{r}
@@ -400,8 +420,8 @@ ggplot() +
 density_plot <- ggplot() +
   geom_sf(data = land, fill = "gray90", color = "gray50") +
   geom_sf(data = boundary, fill = NA, color = "blue", size = 1) +
-  stat_bin_2d(data = fleet_ocean, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
-              bins = 35) +
+  geom_hex(data = fleet_ocean, aes(x = cell_ll_lon, y = cell_ll_lat, weight = fishing_hours),
+              bins = 40, alpha = 0.8) +
   scale_fill_viridis_c(option = "viridis", direction = -1, name = "Fishing Hours") +
   labs(title = "AIS-Vessel Fishing effort density in Chumash Heritage National Marine Sanctuary", 
        subtitle = "Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region.", 
@@ -449,20 +469,91 @@ density_plot <- ggplot() +
   coord_sf(xlim = st_bbox(chnms_bbox)[c("xmin", "xmax")],
            ylim = st_bbox(chnms_bbox)[c("ymin", "ymax")])
 
-# ggsave(
-#   filename = here::here("figures", "ais_density.png"),
-#   plot = density_plot,
-#   device = "png",
-#   width = 15,
-#   height = 10,
-#   unit = "in",
-#   dpi = 300
-# )
+density_plot
 ```
 
 ![](figures/ais_density.png)
 
 **Alt-text**: AIS-based fishing effort in the Chumash Heritage National Marine Sanctuary. Fishing effort is concentrated in the northern section of the sanctuary and offshore in the central region, near known seafloor features such as seamounts. Data are binned into 35 cells, with the summed apparent fishing hours represented on a viridis gradient: higher effort areas are shown in purple, and lower effort areas in yellow.
+
+```{r}
+density_plot <- ggplot() +
+  geom_sf(data = california, fill = "gray90", color = "gray50") +
+  geom_sf(data = boundary, fill = NA, color = "blue", size = 1) +
+  stat_density_2d(
+    data = fleet_ocean_df,
+    aes(x = cell_ll_lon, y = cell_ll_lat,
+        weight = fishing_hours,
+        fill = after_stat(level),
+        alpha = after_stat(level)),
+    geom = "polygon",
+    contour = TRUE
+  ) +
+  geom_sf(data = california, fill = "gray90", color = "gray50") +  # drawn second to mask density on land
+  geom_sf(data = boundary, fill = NA, color = "blue", size = 1) +
+  scale_fill_viridis_c(option = "viridis", direction = -1, name = "Fishing Effort\nDensity") +
+  scale_alpha(range = c(0.2, 0.9), guide = "none") +
+  labs(
+    title = "AIS-Vessel Fishing Effort Density in Chumash Heritage National Marine Sanctuary",
+    subtitle = "Fishing effort is highly concentrated off of Point Conception.",
+    caption = "Data Source: Global Fishing Watch (2017-2024)"
+  ) +
+  theme_void() +
+  theme(
+    plot.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.grid = element_blank(),
+    legend.position = "right",
+    panel.spacing = unit(0.1, "lines"),
+    text = element_text(family = "sourcesans"),
+    plot.title = element_text(
+      family = "sourcesans",
+      size = 50,
+      face = "bold",
+      color = "#0D1B2A",
+      hjust = 0,
+      margin = margin(b = 3)
+    ),
+    plot.subtitle = element_text(
+      family = "merriweather",
+      size = 45,
+      color = "#5A6670",
+      hjust = 0,
+      margin = margin(b = 18)
+    ),
+    plot.caption = element_text(
+      family = "merriweather",
+      size = 40,
+      color = "#888888",
+      hjust = 1,
+      margin = margin(t = 12)
+    ),
+    plot.margin = margin(25, 25, 15, 25),
+    legend.title = element_text(
+      family = "merriweather",
+      face = "bold",
+      size = 35
+    ),
+    legend.text = element_text(
+      family = "merriweather",
+      size = 35
+    )
+  ) +
+  coord_sf(xlim = st_bbox(chnms_bbox)[c("xmin", "xmax")],
+           ylim = st_bbox(chnms_bbox)[c("ymin", "ymax")])
+
+density_plot
+
+ggsave(
+  filename = here::here("figures", "ais_density.png"),
+  plot = density_plot,
+  device = "png",
+  width = 15,
+  height = 10,
+  unit = "in",
+  dpi = 300
+)
+```
 
 ### Circle Bar Plot
 
@@ -479,138 +570,269 @@ library(scales)
 library(stringr)
 
 
-mean_hours <- mean(fleet_agg_gear$total_fishing_hours)
-
-circle_plot <- ggplot(fleet_agg_gear) +
-  # Custom circular grid lines
   geom_hline(
     aes(yintercept = y),
-    data.frame(y = c(0, 100, 500, 1000, 2500)),  # adjust to range
+    data.frame(y = c(0, 100, 500, 1000, 2500)),
     color = "lightgrey"
   ) +
   
-  # Bars colored by gear type
-  geom_col(
+  # Bars colored by magnitude gradient
+ geom_col(
     aes(
-      x = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
-      y = total_fishing_hours,
-      fill = geartype_label
-    ),
-    position = "dodge2",
-    show.legend = TRUE,
-    alpha = 0.9,
+      x = geartype_label, 
+      y = total_fishing_hours, 
+      fill = total_fishing_hours),
+    position = "dodge2", 
+    show.legend = TRUE, 
+    alpha = 0.9, 
     width = 0.6
   ) +
   
-  # Mean effort hours dot
+  # Per-gear mean dot
   geom_point(
     aes(
-      x = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
-      y = mean_hours
-    ),
-    size = 3,
+      x = geartype_label,
+      y = mean_hours),
+    size = 3, 
     color = "gray12"
   ) +
   
-  # Lollipop shaft to mean line
-  geom_segment(
+  # Lollipop shaft to per-gear mean
+   geom_segment(
     aes(
-      x = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
-      y = 0,
-      xend = reorder(str_wrap(geartype_label, 5), total_fishing_hours),
-      yend = mean_hours
-    ),
+      x = geartype_label, 
+      xend = geartype_label, 
+      y = 0, 
+      yend = mean_hours),
     linetype = "dashed",
     color = "gray12"
   ) +
   
   # Make it circular
   coord_polar() +
-  scale_fill_manual(values = colorRampPalette(RColorBrewer::brewer.pal(8, "Set2"))(10), 
-                  name = "Gear Type")+
+  
+  # Magnitude gradient
+  scale_fill_gradient(
+    low   = "#C8D8E8",
+    high  = "#1B3A5C",
+    name  = "Total fishing hours",
+    guide = guide_colorbar(
+      direction      = "horizontal",
+      barwidth       = unit(10, "cm"),
+      barheight      = unit(0.4, "cm"),
+      title.position = "top",
+      title.hjust    = 0.5,
+      ticks          = FALSE
+    )
+  ) +
+  
   scale_y_continuous(
-     trans = "log1p",#log to see other lower gear types clearly
+    trans  = "log1p",
     labels = comma,
-     breaks = c(0, 100, 500, 1000, 2500),
-    name = "Total Fishing Hours"
+    breaks = c(0, 100, 500, 1000, 2500),
+    name   = "Total Fishing Hours"
   ) +
   
   labs(
-    title = "AIS-detected fishing effort by gear type in Chumash Heritage National Marine Sanctuary",
-    subtitle = "Pole and line and purse seine adjacent gear types dominate in the sanctuary",
-    caption = "Data Source: Global Fishing Watch (2017-2024)",
-    x = NULL,
-    fill = "Gear Type"
+    title    = "AIS-detected fishing effort by gear type in CHNMS",
+    subtitle = "Dashed line indicates mean annual fishing hours over active years per gear type.",
+    caption  = "Data: Global Fishing Watch AIS (2017–2024). Note: Y-axis is log-scaled to improve visibility of low-effort gear types.",
+    x        = NULL
   ) +
+  
   theme_minimal() +
   theme(
-  axis.title = element_blank(),
-  axis.ticks = element_blank(),
-  panel.grid = element_blank(),
-  plot.background = element_rect(fill = "#FCFCFA", color = NA),
-  panel.background = element_rect(fill = "#FCFCFA", color = NA),
-  legend.position = "none",
-  panel.spacing = unit(0.1, "lines"),
-  text = element_text(family = "sourcesans"),
-  
-  plot.title = element_text(
-    size = 50, 
-    face = "bold",
-    color = "#0D1B2A",
-    hjust = 0,
-    margin = margin(b = 3)
-  ),
-  plot.subtitle = element_text(
-    family = "merriweather",
-    size = 45,
-    color = "#5A6670",
-    hjust = 0,
-    margin = margin(b = 10)
-  ),
-  plot.caption = element_text(
-    family = "merriweather", 
-    size = 40,
-    color = "#888888",
-    hjust = 1,
-    margin = margin(t = 8)
-  ),
-  plot.margin = margin(25, 25, 15, 25), 
-  legend.title = element_text(
-    family = "merriweather",
-    face = "bold",
-    size = 40
-  ),
-  legend.text = element_text(
-    family = "merriweather",
-    size = 35
-  ), 
-  axis.text.x = element_text(
-    family = "merriweather",
-    size = 35,      
-    color = "#0D1B2A",
-    lineheight = 0.5,
-    face = "bold"
-  ),
-  axis.text.y = element_text(
-  family = "merriweather",
-  size = 18,
-  color = "gray30")
-)
+    axis.title       = element_blank(),
+    axis.ticks       = element_blank(),
+    panel.grid       = element_blank(),
+    plot.background  = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    legend.position  = "bottom",
+    legend.justification = "center",
+    legend.margin    = margin(t = 10),
+    panel.spacing    = unit(0.1, "lines"),
+    text             = element_text(family = "sourcesans"),
+    plot.title       = element_text(
+      size   = 55, face = "bold",
+      color  = "#0D1B2A", hjust = 0,
+      margin = margin(b = 8)
+    ),
+    plot.subtitle    = element_text(
+      family = "merriweather", size = 45,
+      color  = "#5A6670", hjust = 0,
+      lineheight = 0.4,
+      margin = margin(b = 10)
+    ),
+    plot.caption     = element_text(
+      family    = "merriweather", size = 40,
+      color     = "#888888", hjust = 0,    # ← left align for long caption
+      margin    = margin(t = 8)
+    ),
+    plot.margin      = margin(25, 25, 15, 25),
+    legend.title     = element_text(
+      family = "merriweather", face = "bold", size = 40
+    ),
+    legend.text      = element_text(
+      family = "merriweather", size = 35
+    ),
+    axis.text.x      = element_text(
+      family     = "merriweather", size = 35,
+      color      = "#0D1B2A", lineheight = 0.3,
+      face       = "bold"
+    ),
+    axis.text.y      = element_text(
+      family = "merriweather", size = 18,
+      color  = "gray30"
+    )
+  )
 
-# ggsave(
-#   filename = here::here("figures", "ais_circle.png"),
-#   plot = circle_plot,
-#   device = "png",
-#   width = 15,
-#   height = 10,
-#   unit = "in",
-#   dpi = 300
-# )
+circle_plot
+
+ggsave(
+  filename = here::here("figures", "ais_circle.png"),
+  plot = circle_plot,
+  device = "png",
+  width = 15,
+  height = 10,
+  unit = "in",
+  dpi = 300
+)
 ```
 
-![](figures/ais_circle.png)
-
 **Alt-text** : Fishing effort by gear type in Chumash Heritage National Marine Sanctuary, shown as a circular bar plot. Pole and line and purse seine–related gear types dominate the sanctuary, while set gillnets and pots and traps contribute relatively low effort. The mean fishing hours across all gear types is indicated by a gray dot at 776.87 hours. Bars have distinct colors for each gear type.
+
+Alt Text: Set Gillnets and Pots & Traps are present in the sanctuary but not detected as actively fishing by GFW's algorithm, likely due to the passive nature of these gear types
+
+### Bar Chart of Circular Bar Chart
+
+```{r}
+bar_plot <- ggplot(fleet_agg_gear) +
+  
+  # Bars colored by magnitude gradient
+  geom_col(
+    aes(
+      x    = geartype_label,
+      y    = total_fishing_hours,
+      fill = total_fishing_hours
+    ),
+    alpha = 0.9,
+    width = 0.7
+  ) +
+  
+  # Per-gear mean dot
+  geom_point(
+    aes(
+      x = geartype_label,
+      y = mean_hours
+    ),
+    size  = 3,
+    color = "gray12"
+  ) +
+  
+  # Lollipop shaft to per-gear mean
+  geom_segment(
+    aes(
+      x    = geartype_label,
+      xend = geartype_label,
+      y    = 0,
+      yend = mean_hours
+    ),
+    linetype  = "dashed",
+    color     = "gray12",
+    linewidth = 0.5
+  ) +
+  
+  # Magnitude gradient
+  scale_fill_gradient(
+    low   = "#C8D8E8",
+    high  = "#1B3A5C",
+    name  = "Total vessel hours",
+    guide = guide_colorbar(
+      direction      = "horizontal",
+      barwidth       = unit(10, "cm"),
+      barheight      = unit(0.4, "cm"),
+      title.position = "top",
+      title.hjust    = 0.5,
+      ticks          = FALSE
+    )
+  ) +
+  
+  scale_y_continuous(
+  trans  = "log1p",
+  labels = comma,
+  breaks = c(0, 25, 50, 100, 250, 500, 1000, 2000),
+  expand = expansion(mult = c(0, 0.05))
+) +
+  
+  labs(
+    title   = "AIS-detected fishing effort by gear type in CHNMS",
+    caption  = "Data Source: Global Fishing Watch AIS (2017–2024).",
+    x        = NULL,
+    y        = "Total vessel hours"
+  ) +
+  
+  theme_minimal() +
+  theme(
+    plot.background  = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    panel.grid.major.x = element_blank(),
+    panel.grid.major.y = element_line(color = "lightgrey", linewidth = 0.4),
+    panel.grid.minor   = element_blank(),
+    legend.position    = "none",
+    legend.justification = "center",
+    legend.margin      = margin(t = 10),
+    text               = element_text(family = "sourcesans"),
+    plot.title         = element_text(
+      size = 65, face = "bold",
+      color = "#0D1B2A", hjust = 0,
+      margin = margin(b = 6)
+    ),
+    plot.subtitle      = element_text(
+      family = "merriweather", size = 14,
+      color = "#5A6670", hjust = 0,
+      margin = margin(b = 10)
+    ),
+    plot.caption       = element_text(
+      family = "merriweather", size = 35,
+      color = "#888888", hjust = 0,
+      margin = margin(t = 8)
+    ),
+    plot.margin        = margin(25, 25, 15, 25),
+    legend.title       = element_text(
+      family = "merriweather", face = "bold", size = 12
+    ),
+    legend.text        = element_text(
+      family = "merriweather", size = 10
+    ),
+    axis.text.x        = element_text(
+      family     = "merriweather", size = 40,
+      color      = "#0D1B2A", lineheight = 0.4,
+      face       = "bold"
+    ),
+    axis.text.y        = element_text(
+      family = "merriweather", size = 40,
+      color  = "gray30"
+    ),
+    axis.title.y       = element_text(
+      family = "merriweather", size = 45,
+      color  = "gray30", margin = margin(r = 10)
+    )
+  )
+
+bar_plot
+
+ggsave(
+  filename = here::here("figures", "ais_barplot.png"),
+  plot = bar_plot,
+  device = "png",
+  width = 14,
+  height = 8,
+  unit = "in",
+  dpi = 300
+)
+```
+
+Total hours reflect AIS-detected vessel presence. GFW's fishing detection algorithm may undercount passive gear types such as pots & traps and set gillnets. Dashed line indicates mean annual vessel hours over active years per gear type.Y-axis is log-scaled
 
 ### Questions
 
@@ -637,7 +859,7 @@ circle_plot <- ggplot(fleet_agg_gear) +
 
         **dplyr, forcats, and stringr** for data wrangling, reordering factor levels, and wrapping text labels.
 
-    -    I think we have gone over all of these in class except **forcats** I don't anticipate bringing in other packages.
+    -   I think we have gone over all of these in class except **forcats** I don't anticipate bringing in other packages.
 4.  What feedback do you need from the instructional team and / or your peers to ensure that your intended message and key insights are clear?
     -   I’d like feedback on whether the main messages of my three plots: seasonal trends in fishing (ridgeline), where fishing is concentrated offshore (density map), and total effort by gear type (circle plot) come across clearly.
         -   Ridgeline: Does the seasonal legend make it easy to see patterns across months? Are the gear types easy to tell apart?
