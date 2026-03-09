@@ -1,0 +1,490 @@
+---
+title: "Infographic Blog Post"
+author: "Sarayu Ramnath"
+date: "March 8, 2026"
+format:
+  html:
+    embed-resources: true
+    theme: simplex
+execute:
+  echo: false
+  message: false
+  warning: false
+---
+
+## Fishing Activity in Chumash Heritage National Marine Sanctuary: Insights from AIS Data
+
+### Spawning Idea
+
+I’ve been exploring fishing activity in Chumash Heritage National Marine Sanctuary, which stretches along the central California coast from Gaviota to just south of Morro Bay and protects a variety of nearshore and offshore marine habitats. This sanctuary includes kelp forests, rocky reefs, and open-water areas, providing homes for fish, invertebrates, and marine mammals. I wanted to better understand human interactions within the sanctuary, especially fishing because it’s a key piece of understanding how we can engage and protectthese ecosystems.
+
+Understanding preliminary fishing activity in the area was a little tricky. The sanctuary sits between two active harbors: Morro Bay Harbor to the north and Santa Barbara Harbor to the south. which makes it hard (for the average public data parser and fisheries amateur!) to know exactly what’s being caught and where. Catch landing data is reported at the harbor level, not the sanctuary level, so I couldn't tell whether a fish and which gear type used was caught inside the sanctuary or somewhere outside and just landed nearby.
+
+To get around this, I looked at vessel tracking data from [Global Fishing Watch]{.underline} (GFW). They collect Automatic Identification System (AIS) signals from vessels, which broadcast location, speed, and heading. Many large commercial vessels are required to carry AIS (\>65ft long), and some smaller vessels do so voluntarily. Using AIS data lets us get an idea of where and when fishing vessels are active, even if catch records are limited. Of course, there are caveats: many smaller vessels don’t carry AIS, and this data doesn’t include recreational, cultural, or subsistence fishing. Still, it gives me a useful glimpse into fishing vessel presence in the sanctuary.
+
+**So the data...**
+
+**AIS-Detected Fishing (2017–2024)**
+
+For [Chumash Heritage National Marine Sanctuary]{.underline}, AIS-detected fishing data from **2017–2024** provide a snapshot of fishing activity within and around the sanctuary. This information helps illustrate patterns of ocean use and the presence of industrial fishing vessels over time.
+
+### Visualization Questions
+
+I wanted to answer three questions: **when, where, and what.** Each is represented with a different visualization.
+
+**1. Seasonal Patterns: Ridgeline Plot**
+
+To look at **when** fishing activity happens, I created a ridgeline plot showing seasonal use of different gear types from 2017–2024. This plot organizes fishing effort by month and gear type, so I can see patterns, overlaps, and differences across the year. Some gears are used year-round, while others have clear seasonal peaks. Looking at this would help understand timing in fishing activity and how different gear types may overlap or remain separate during the year.
+
+![](figures/ais_ridgeline_affinity.png)
+
+**Alt-Text**: Ridgeline plot showing seasonal fishing effort by gear type in Chumash Heritage National Marine Sanctuary. Fishing activity peaks in fall, with strong overlaps among trawlers, purse seines, set gillnets, and pots and traps between September and November. The color gradient encodes seasonality, transitioning from dark blue in December to March, to lighter blue in April, shifting to yellow and orange during the summer months from June to August, and returning from lighter blue to darker blue in October through December.
+
+**2. Spatial Hotspots: Density Map**
+
+Next, I explored **where** fishing activity is concentrated. Using the latitude and longitude coordinates from AIS, along with fishing hours, I made a density hotspot map. This lets us view areas with higher vessel presence versus more diffuse activity. Hotspots shows where fishing pressure is greatest and where it might overlap with sensitive habitats or biologically important areas, which I marked several offshore geological featrures. The density map is a clear way to visualize spatial concentration across the sanctuary.
+
+![](figures/ais_density_chnms.png)
+
+**3. Magnitude of Fishing Effort: Circular Bar Chart**
+
+Finally, I wanted to know **what** types of gear contribute most to overall fishing effort. I aggregated fishing hours by gear type from 2017–2024 and made a circular bar chart. This shows the relative contribution of each gear and provides context for the seasonal and spatial patterns. Common gear types include pole and line, trollers, purse seines (nearshore), other purse seines (offshore), drifting longlines, set longlines, fixed gear, trawlers, set gillnets, and pots and traps. Seeing which gears are most populous gives insight into the composition of AIS-detected fishing activity in the Sanctuary.
+
+![](figures/canva_ais_circular_plot.png)
+
+**These are the gear types used within the Sanctuary (Gear Type Context)**
+
+So readers can understand what these gears target and where:
+
+-   **Pole and line, trollers** : tuna and other offshore pelagic species
+
+-   **Purse seines** : nearshore schooling fish like sardines and anchovies.
+
+-   **Other purse seines** – offshore schooling species such as tuna.
+
+-   **Drifting longlines** : offshore species like swordfish and tuna
+
+-   **Set longlines, fixed gear** : bottom-associated fish such as rockfish and halibut
+
+-   **Trawlers**: groundfish and shrimp
+
+-   **Set gillnets** : halibut and white seabass
+
+-   **Pots and traps** : crab and lobster
+
+## Methods
+
+I used a processed dataset from Global Fishing Watch covering 2017–2024. I filtered fishing effort within CHNMS using the sanctuary boundary, giving me observation date, gear type, vessel presence, and fishing hours.
+
+-   For seasonal patterns, I analyzed month, year, gear type, and fishing hours.
+
+-   For spatial hotspots, I mapped latitude and longitude with fishing hours to show density and concentration.
+
+-   For overall effort, I summed fishing hours by gear type across the full time period to show relative magnitude.
+
+## Results & Takeaways
+
+To help visualize these patterns, I’ve put together an infographic showing seasonal trends, spatial hotspots, and overall fishing effort by gear type in Chumash Heritage National Marine Sanctuary.
+
+![](figures/AIS-%20Infographic-Draft-Canva.png)
+
+### What are we seeing?
+
+Together, these visualizations give a broader picture of AIS-detected fishing activity within [Chumash Heritage National Marine Sanctuary]{.underline}.
+
+Spatially, the density map shows that fishing activity is concentrated along the Point Conception region, with additional overlap near underwater features such as Arguello Canyon and Arguello Terrace, as well as some nearshore activity just south off the coast of San Luis Obispo. These areas appear as hotspots where fishing vessels are more frequently detected.
+
+Looking at seasonal patterns, some gear types such as pole and line, other purse seines, and set longlines appear throughout much of the year, suggesting relatively consistent use. At the same time, several gears show noticeable seasonal peaks, particularly in the fall, including purse seines, set gillnets, pots and traps, trawlers, and fixed gear. Purse seine activity appears especially seasonal, showing concentrated use during only a few months of the year with clear gaps in between.
+
+The circular bar chart adds another layer by showing the overall magnitude of fishing effort. Across the 2017–2024 dataset, pole and line, trawlers, and other purse seines account for the largest share of AIS-detected fishing hours, while pots and traps, set gillnets, and purse seines contribute relatively fewer hours.
+
+However, this pattern should be interpreted carefully. Some of these gear types are commonly used by smaller vessels that may not carry AIS, meaning they could still be active in the sanctuary even if they are not strongly represented in this dataset. Together, these patterns provide a preliminary glimpse fishing vessel presence, highlighting where activity clusters, when different gears are used, and which gears dominate AIS-detected effort within the sanctuary.
+
+## Design and Visualization Building
+
+Here are some design elements I kept in mind and how I applied them to my infographic:
+
+-   **Color** : I chose muted, accessible color palettes for the ridgeline plot and density map so seasonal and spatial patterns are clear without being overwhelming. The density map uses a gradient to highlight hotspots, and the circular bar chart uses contrasting colors to distinguish gear types. I also referenced this palette in the density map and circular bar chart.
+
+-   **Composition**: I arranged the three visualizations to answer the key questions: when, where, and what. The ridgeline plot addresses seasonality, the density map shows spatial hotspots, and the circular bar chart summarizes gear-level effort. This layout flows logically and I wanted to make sure it matches the structure of the blog post.
+
+-   **Temporal Representation**: The ridgeline plot captures the timing of fishing activity across months and gears, showing both year-round and seasonal peaks.
+
+    **Spatial Representation**: The density map communicates hotspots and nearshore/offshore patterns. I highlighted areas like Point Conception and Arguello Canyon/Terrace, which are present in the density map.
+
+-   **Representing Magnitude** : In the circular bar chart, the length of each bar directly corresponds to the sum of AIS-detected fishing hours, making it easy to see which gear types are most used. I also included an individual mean activity line so readers can see average hours of usage relative to the overall gear usage range.
+
+-   **Scale & Axes** : For the ridgeline plot, I added month labels and kept axes consistent so readers can compare gear use across months. In the density map, I chose a consistent scale for fishing hours across grid cells to make hotspots interpretable.
+
+    ## Code
+
+    To generate these visualizations, I worked with a processed AIS dataset from Global Fishing Watch covering 2017–2024 within the Chumash Heritage National Marine Sanctuary. Using R, I filtered the data to the sanctuary boundary and summarized fishing hours by gear type, month, and location. I relied on packages like ggplot2 for plotting, ggridges for the ridgeline plot, and mapping tools for the density map to visualize spatial hotspots. The ridgeline plot shows seasonal patterns by gear type, the density map highlights spatial concentration of fishing activity, and the circular bar chart summarizes overall fishing effort by gear. I’ve suppressed the code in the blog for readability, but these visualizations directly reflect the data processing and plotting choices I made to convey patterns clearly.
+
+```{r}
+#| eval: false
+#| echo: true
+#| code-fold: true
+#| code-summary: "Expand to view full code"
+
+library(ggplot2)
+library(sf)
+library(readr)
+library(dplyr)
+library(forcats)
+library(tidyverse)
+library(ggridges)
+library(sf)
+library(rnaturalearth)
+library(rnaturalearthdata)
+library(scales)
+library(stringr)
+library(monochromeR)
+library(showtext)
+library(glue)
+
+# -------------------------------------------------------------------
+# Loading Data
+# -------------------------------------------------------------------
+fleet <- read.csv("data/fleet_chnms_2017_2024.csv")
+
+boundary <- st_read("data/chnms_designated_boundary/CHNMS_py.shp") %>%
+  st_transform(4326)
+
+# -------------------------------------------------------------------
+# Wrangle Data for Visualizations
+# -------------------------------------------------------------------
+fleet_sf <- st_as_sf(fleet, coords = c("cell_ll_lon", "cell_ll_lat"), crs = 4326, remove = FALSE)
+
+fleet_agg_fishing <- fleet %>%
+  group_by(cell_ll_lat, cell_ll_lon) %>%
+  summarise(total_hours = sum(hours, na.rm = TRUE), .groups = "drop")
+
+mean_hours_gear <- fleet %>%
+  filter(geartype_label != "Fishing") %>%
+  group_by(geartype_label, year) %>%
+  summarise(annual_hours = sum(hours, na.rm = TRUE), .groups = "drop") %>%
+  filter(annual_hours > 0) %>%
+  group_by(geartype_label) %>%
+  summarise(mean_hours = mean(annual_hours, na.rm = TRUE))
+
+fleet_agg_gear <- fleet %>%
+  filter(geartype_label != "Fishing") %>%
+  group_by(geartype_label) %>%
+  summarise(total_fishing_hours = sum(hours, na.rm = TRUE), .groups = "drop") %>%
+  left_join(mean_hours_gear, by = "geartype_label") %>%
+  mutate(
+    mean_hours     = replace_na(mean_hours, 0),
+    geartype_label = str_wrap(geartype_label, width = 8),
+    geartype_label = fct_reorder(geartype_label, total_fishing_hours)
+  )
+
+fleet_agg_gear_month <- fleet %>%
+  filter(geartype_label != "Fishing") %>%
+  group_by(geartype_label, month) %>%
+  summarise(total_gear_hours = sum(hours, na.rm = TRUE), .groups = "drop") %>%
+  mutate(geartype_label = fct_reorder(geartype_label, total_gear_hours, .desc = TRUE))
+
+# -------------------------------------------------------------------
+# Fonts
+# -------------------------------------------------------------------
+font_add_google(name = "Source Sans 3", family = "sourcesans")
+font_add_google(name = "Merriweather", family = "merriweather")
+showtext_auto()
+
+# -------------------------------------------------------------------
+# Define NOAA Themed color palette 
+# -------------------------------------------------------------------
+noaa_dark <- "#0D1B2A"
+noaa_mid  <- "#5A8CAE"
+noaa_pale <- "#D6EAF8"
+noaa_grey <- "#5A6670"
+
+# -------------------------------------------------------------------
+# Ridgeline Plot
+# -------------------------------------------------------------------
+ais_ridgeline <- ggplot(fleet_agg_gear_month,
+       aes(x = month,
+           y = reorder(geartype_label, total_gear_hours, FUN = sum),
+           fill = after_stat(x))) +
+  geom_density_ridges_gradient(
+    scale = 1.9,
+    rel_min_height = 0.01,
+    alpha = 1,
+    color = "#1a1a1a",
+    size = 0.4
+  ) +
+  scale_x_continuous(
+    breaks = 1:12,
+    labels = month.abb,
+    expand = c(0.04, 0)
+  ) +
+  scale_fill_gradientn(
+    colors = alpha(c("#3B5F8F", "#5A8CAE", "#7FB8D4", "#FFD580", "#FFA040",
+                     "#7FB8D4", "#A8D5E2", "#5A8CAE"), 1.0),
+    name = NULL,
+    guide = guide_colorbar(
+      direction      = "horizontal",
+      barwidth       = unit(0.755, "npc"),
+      barheight      = unit(0.4, "cm"),
+      title.position = "top",
+      ticks          = FALSE,
+      label          = FALSE
+    )
+  ) +
+  labs(
+    title    = "Seasonal AIS-detected fishing effort by gear type in CHNMS",
+    subtitle = "Taller peaks indicate greater fishing density.",
+    x        = NULL,
+    y        = NULL,
+    caption  = "Data: Global Fishing Watch AIS (2017-2024)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background        = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background       = element_rect(fill = "#FCFCFA", color = NA),
+    panel.grid             = element_blank(),
+    legend.position        = "bottom",
+    legend.justification   = c(1, 0),
+    legend.key.width       = unit(1, "npc"),
+    legend.margin          = margin(t = -15, r = 0, b = 0, l = 0),
+    panel.spacing          = unit(0.1, "lines"),
+    text                   = element_text(family = "sourcesans"),
+    plot.title             = element_text(
+      family = "sourcesans", size = 25, face = "bold",
+      color = "#0D1B2A", hjust = 0, margin = margin(b = 3)
+    ),
+    plot.subtitle          = element_text(
+      family = "merriweather", size = 14,
+      color = "#5A6670", hjust = 0, margin = margin(b = 20)
+    ),
+    plot.caption           = element_text(
+      family = "merriweather", size = 10,
+      color = "#888888", hjust = 1, margin = margin(t = 13)
+    ),
+    axis.text.y            = element_text(
+      color = "#0D1B2A", size = 16, face = "bold",
+      hjust = 1, margin = margin(r = 10)
+    ),
+    axis.text.x            = element_text(
+      color = "#5A6670", size = 13, margin = margin(t = 5)
+    ),
+    plot.margin            = margin(25, 25, 5, 25),
+    legend.title           = element_text(family = "merriweather", face = "bold", size = 12),
+    legend.text            = element_text(family = "merriweather", size = 10)
+  )
+
+ais_ridgeline
+
+# -------------------------------------------------------------------
+# Density Plot
+# -------------------------------------------------------------------
+land <- ne_download(
+  scale = 10,
+  type = "land",
+  category = "physical",
+  returnclass = "sf"
+) %>%
+  st_transform(4326)
+
+ca_bbox     <- st_as_sfc(st_bbox(c(xmin = -125, xmax = -114, ymin = 32, ymax = 42), crs = 4326))
+california  <- st_intersection(land, ca_bbox)
+chnms_bbox  <- st_as_sfc(st_bbox(boundary)) %>% st_buffer(0.1)
+
+fleet_ocean    <- fleet_sf[!st_intersects(fleet_sf, california, sparse = FALSE), ]
+fleet_ocean_df <- st_drop_geometry(fleet_ocean)
+
+landmarks_coast <- tibble(
+  name = c("Point Conception", "Gaviota", "Lompoc", "San Luis Obispo"),
+  lon  = c(-120.4715, -120.2139, -120.4579, -120.6596),
+  lat  = c(34.4486, 34.4717, 34.6392, 35.2828)
+)
+
+landmarks_seamount <- tibble(
+  name = c("Rodriguez Seamount"),
+  lon  = c(-121.0667),
+  lat  = c(34.0500)
+)
+
+landmarks_marine <- tibble(
+  name = c("Arguello Canyon", "Arguello Terrace", "Santa Lucia Bank"),
+  lon  = c(-120.8500, -120.9500, -121.2000),
+  lat  = c(34.3000, 34.5500, 34.6000)
+)
+
+dot_layer <- function(df) {
+  geom_point(
+    data   = df,
+    aes(x = lon, y = lat),
+    shape  = 21,
+    size   = 1.5,
+    fill   = noaa_pale,
+    color  = noaa_dark,
+    stroke = 0.8
+  )
+}
+
+density_plot <- ggplot() +
+  geom_sf(data = california, fill = "#F0EDE8", color = "grey60", linewidth = 0.4) +
+  geom_sf(data = boundary, fill = alpha(noaa_mid, 0.05), color = noaa_dark, linewidth = 0.7) +
+  stat_density_2d(
+    data    = fleet_ocean_df,
+    aes(x = cell_ll_lon, y = cell_ll_lat,
+        weight = hours,                         # use `hours`
+        fill   = after_stat(level),
+        alpha  = after_stat(level)),
+    geom    = "polygon",
+    contour = TRUE
+  ) +
+  geom_sf(data = california, fill = "#F0EDE8", color = "grey60", linewidth = 0.4) +
+  geom_sf(data = boundary, fill = NA, color = noaa_dark, linewidth = 0.7) +
+  dot_layer(landmarks_coast) +
+  dot_layer(landmarks_seamount) +
+  dot_layer(landmarks_marine) +
+  scale_fill_viridis_c(
+    option    = "viridis",
+    direction = -1,
+    name      = "Fishing Effort\nDensity"
+  ) +
+  scale_alpha(range = c(0.2, 0.9), guide = "none") +
+  scale_x_continuous(
+    breaks = seq(floor(st_bbox(chnms_bbox)["xmin"]),
+                 ceiling(st_bbox(chnms_bbox)["xmax"]), by = 0.5),
+    labels = function(x) paste0(abs(x), "°W")
+  ) +
+  scale_y_continuous(
+    breaks = seq(floor(st_bbox(chnms_bbox)["ymin"]),
+                 ceiling(st_bbox(chnms_bbox)["ymax"]), by = 0.25),
+    labels = function(y) paste0(y, "°N")
+  ) +
+  labs(
+    title    = "AIS-Vessel Fishing Effort Density in Chumash Heritage National Marine Sanctuary",
+    subtitle = "Contours indicate relative fishing effort density per unit area.",
+    caption  = "Data Source: Global Fishing Watch AIS (2017–2024)"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.background  = element_rect(fill = "white", color = NA),
+    panel.background = element_rect(fill = "#D6EAF8", color = NA),
+    panel.border     = element_rect(fill = NA, color = "grey50", linewidth = 0.5),
+    panel.grid.major = element_line(color = "grey93", linewidth = 0.4),
+    panel.grid.minor = element_blank(),
+    plot.title       = element_text(
+      family = "sourcesans", size = 60, face = "bold",
+      color  = noaa_dark, hjust = 0, margin = margin(b = 5)
+    ),
+    plot.subtitle    = element_text(
+      family = "merriweather", size = 50,
+      color  = noaa_grey, hjust = 0, margin = margin(b = 8)
+    ),
+    plot.caption     = element_text(
+      family = "merriweather", size = 40,
+      color  = "grey55", hjust = 0, margin = margin(t = 8)
+    ),
+    plot.margin      = margin(t = 12, r = 15, b = 10, l = 12),
+    axis.title       = element_blank(),
+    axis.text        = element_text(family = "merriweather", size = 20, color = "grey40"),
+    legend.position  = "right",
+    legend.title     = element_text(
+      family = "merriweather", face = "bold", size = 40,
+      color = noaa_dark, lineheight = 0.4
+    ),
+    legend.text      = element_text(family = "merriweather", size = 35, color = "grey30")
+  ) +
+  coord_sf(
+    xlim   = c(st_bbox(chnms_bbox)["xmin"] - 0.3, st_bbox(chnms_bbox)["xmax"] + 0.3),
+    ylim   = c(st_bbox(chnms_bbox)["ymin"] - 0.3, st_bbox(chnms_bbox)["ymax"] + 0.3),
+    expand = FALSE
+  )
+
+density_plot
+
+# -------------------------------------------------------------------
+# Circle Bar Plot 
+# -------------------------------------------------------------------
+circle_plot <- ggplot(fleet_agg_gear) +
+  geom_hline(
+    aes(yintercept = y),
+    data.frame(y = c(0, 100, 500, 1000, 2500)),
+    color = "lightgrey"
+  ) +
+  geom_col(
+    aes(x = geartype_label, y = total_fishing_hours, fill = total_fishing_hours),
+    position = "dodge2",
+    show.legend = TRUE,
+    alpha = 0.9,
+    width = 0.6
+  ) +
+  geom_point(
+    aes(x = geartype_label, y = mean_hours),
+    size = 3,
+    color = "gray12"
+  ) +
+  geom_segment(
+    aes(x = geartype_label, xend = geartype_label, y = 0, yend = mean_hours),
+    linetype = "dashed",
+    color = "gray12"
+  ) +
+  coord_polar() +
+  scale_fill_gradient(
+    low   = "#C8D8E8",
+    high  = "#1B3A5C",
+    name  = "Total fishing hours",
+    guide = guide_colorbar(
+      direction      = "horizontal",
+      barwidth       = unit(10, "cm"),
+      barheight      = unit(0.4, "cm"),
+      title.position = "top",
+      title.hjust    = 0.5,
+      ticks          = FALSE
+    )
+  ) +
+  scale_y_continuous(
+    trans  = "log1p",
+    labels = comma,
+    breaks = c(0, 100, 500, 1000, 2500),
+    name   = "Total Fishing Hours"
+  ) +
+  labs(
+    title    = "AIS-detected fishing effort by gear type in CHNMS",
+    subtitle = "Dashed line indicates mean annual fishing hours over active years per gear type.",
+    caption  = "Data: Global Fishing Watch AIS (2017–2024). Note: Y-axis is log-scaled to improve visibility of low-effort gear types.",
+    x        = NULL
+  ) +
+  theme_minimal() +
+  theme(
+    axis.title       = element_blank(),
+    axis.ticks       = element_blank(),
+    panel.grid       = element_blank(),
+    plot.background  = element_rect(fill = "#FCFCFA", color = NA),
+    panel.background = element_rect(fill = "#FCFCFA", color = NA),
+    legend.position  = "bottom",
+    legend.justification = "center",
+    legend.margin    = margin(t = 10),
+    panel.spacing    = unit(0.1, "lines"),
+    text             = element_text(family = "sourcesans"),
+    plot.title       = element_text(
+      size = 55, face = "bold",
+      color = "#0D1B2A", hjust = 0, margin = margin(b = 8)
+    ),
+    plot.subtitle    = element_text(
+      family = "merriweather", size = 45,
+      color = "#5A6670", hjust = 0,
+      lineheight = 0.4, margin = margin(b = 10)
+    ),
+    plot.caption     = element_text(
+      family = "merriweather", size = 40,
+      color = "#888888", hjust = 0, margin = margin(t = 8)
+    ),
+    plot.margin      = margin(25, 25, 15, 25),
+    legend.title     = element_text(family = "merriweather", face = "bold", size = 40),
+    legend.text      = element_text(family = "merriweather", size = 35),
+    axis.text.x      = element_text(
+      family = "merriweather", size = 35,
+      color = "#0D1B2A", lineheight = 0.3, face = "bold"
+    ),
+    axis.text.y      = element_text(family = "merriweather", size = 18, color = "gray30")
+  )
+
+circle_plot
+
+```
