@@ -84,7 +84,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary" id="toc-reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary" class="nav-link active" data-scroll-target="#reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary">Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in Chumash Heritage National Marine Sanctuary</a>
+  <li><a href="#reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-californias-newest-national-marine-sanctuary" id="toc-reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-californias-newest-national-marine-sanctuary" class="nav-link active" data-scroll-target="#reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-californias-newest-national-marine-sanctuary">Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in California’s Newest National Marine Sanctuary</a>
   <ul class="collapse">
   <li><a href="#spawning-idea" id="toc-spawning-idea" class="nav-link" data-scroll-target="#spawning-idea">Spawning Idea</a></li>
   </ul></li>
@@ -101,7 +101,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#what-are-we-seeing" id="toc-what-are-we-seeing" class="nav-link" data-scroll-target="#what-are-we-seeing">What are we seeing?</a></li>
   </ul></li>
   <li><a href="#design-and-visualization-building" id="toc-design-and-visualization-building" class="nav-link" data-scroll-target="#design-and-visualization-building">Design and Visualization Building</a></li>
-  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code</a></li>
+  <li><a href="#code" id="toc-code" class="nav-link" data-scroll-target="#code">Code</a>
+  <ul class="collapse">
+  <li><a href="#data-sources-citations" id="toc-data-sources-citations" class="nav-link" data-scroll-target="#data-sources-citations">Data Sources &amp; Citations</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -138,8 +141,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary" class="level2">
-<h2 class="anchored" data-anchor-id="reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary">Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in Chumash Heritage National Marine Sanctuary</h2>
+<section id="reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-californias-newest-national-marine-sanctuary" class="level2">
+<h2 class="anchored" data-anchor-id="reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-californias-newest-national-marine-sanctuary">Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in California’s Newest National Marine Sanctuary</h2>
 <section id="spawning-idea" class="level3">
 <h3 class="anchored" data-anchor-id="spawning-idea">Spawning Idea</h3>
 <p>I’ve been exploring fishing activity in Chumash Heritage National Marine Sanctuary (CHNMS), which stretches along the central California coast from Gaviota to just south of Morro Bay and protects a variety of nearshore and offshore marine habitats.This area is a remarkably biodiverse stretch of ocean. It is anchored by Point Conception , where cold northern currents collide with warmer southern waters, creating a unique mixing zone that supports an extraordinary range of life. Underwater, forests of giant kelp (Macrocystis pyrifera) rise from rocky reefs, their canopies filtering sunlight into shifting green-gold rays. Sea otters wrap themselves in kelp fronds to sleep, rockfish tuck into crevices below, and spouts of gray whales and humpback whales can be seen from shore as they swim along the coast during their annual migrations. These nearshore and offshore underwater forests are home to fish, invertebrates, seabirds, marine mammals, and for the coastal communities that have held relationships with these waters for thousands of years. I wanted to better understand human interactions within the sanctuary, especially fishing, because it’s a key piece of understanding how we can engage with and steward these waters.</p>
@@ -217,7 +220,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>To help visualize these patterns, I’ve put together an infographic showing seasonal trends, spatial hotspots, and overall fishing effort by gear type in Chumash Heritage National Marine Sanctuary.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="figures/ais_infographic_canva.png" class="img-fluid figure-img" style="width:18in" alt="Infographic with three visualizations of AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary from 2017 to 2024. The top left shows a radial bar chart where pole and line and trawlers have the longest bars indicating highest fishing hours. The top right shows a density map of the sanctuary where fishing effort is most concentrated near Point Conception and Arguello Canyon in the eastern portion. The bottom shows a ridgeline plot where most gear types peak in fall, while purse seines show a distinct winter concentration. Supporting text describes the when, where, and what of fishing vessel presence in the sanctuary."></p>
+<p><img src="figures/ais_infographic_canva.png" class="img-fluid figure-img" style="width:12in" alt="Infographic with three visualizations of AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary from 2017 to 2024. The top left shows a radial bar chart where pole and line and trawlers have the longest bars indicating highest fishing hours. The top right shows a density map of the sanctuary where fishing effort is most concentrated near Point Conception and Arguello Canyon in the eastern portion. The bottom shows a ridgeline plot where most gear types peak in fall, while purse seines show a distinct winter concentration. Supporting text describes the when, where, and what of fishing vessel presence in the sanctuary."></p>
 <figcaption>Figure 4: Infographic summarizing AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary (2017–2024), showing seasonal patterns, spatial hotspots, and overall fishing effort by gear type. Data: Global Fishing Watch</figcaption>
 </figure>
 </div>
@@ -627,6 +630,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-376"><a href="#cb1-376" aria-hidden="true" tabindex="-1"></a>circle_plot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
+<section id="data-sources-citations" class="level3">
+<h3 class="anchored" data-anchor-id="data-sources-citations">Data Sources &amp; Citations</h3>
+<ul>
+<li><p><strong>Global Fishing Watch (GFW)</strong>: Global Fishing Watch. 2025. Global Apparent Fishing Effort Dataset, Version 3.0. <a href="url">doi:10.5281/zenodo.14982712</a>. Data accessed via <a href="https://globalfishingwatch.org">globalfishingwatch.org</a></p></li>
+<li><p><strong>Chumash Heritage National Marine Sanctuary boundary</strong>:</p>
+<p>Office of National Marine Sanctuaries, National Ocean Service, National Oceanic and Atmospheric Administration, U.S. Department of Commerce. (2024). <em>Chumash Heritage National Marine Sanctuary digital boundary</em> (1st ed.) [Vector digital data]. NOAA. <a href="https://sanctuaries.noaa.gov" class="uri">https://sanctuaries.noaa.gov</a></p></li>
+<li><p><strong>Kelp forest photo</strong>: Schwemmer, R. NOAA Office of National Marine Sanctuaries.</p></li>
+<li><p><strong>Natural Earth</strong>: Free map data from <a href="https://www.naturalearthdata.com">naturalearthdata.com</a>, used for basemap in density map.</p></li>
+</ul>
+<p><em>Code and data available on my <a href="https://github.com/sarayu-26/eds240-infographic">GitHub</a> (@Sarayu-26).</em></p>
+</section>
 </section>
 
 </main>

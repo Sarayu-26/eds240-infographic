@@ -17,7 +17,7 @@ execute:
   warning: false
 ---
 
-## Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in Chumash Heritage National Marine Sanctuary
+## Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in California's Newest National Marine Sanctuary
 
 ### Spawning Idea
 
@@ -89,7 +89,7 @@ I used a processed dataset from Global Fishing Watch covering 2017–2024. I fil
 
 To help visualize these patterns, I’ve put together an infographic showing seasonal trends, spatial hotspots, and overall fishing effort by gear type in Chumash Heritage National Marine Sanctuary.
 
-![Figure 4: Infographic summarizing AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary (2017–2024), showing seasonal patterns, spatial hotspots, and overall fishing effort by gear type. Data: Global Fishing Watch](figures/ais_infographic_canva.png){fig-alt="Infographic with three visualizations of AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary from 2017 to 2024. The top left shows a radial bar chart where pole and line and trawlers have the longest bars indicating highest fishing hours. The top right shows a density map of the sanctuary where fishing effort is most concentrated near Point Conception and Arguello Canyon in the eastern portion. The bottom shows a ridgeline plot where most gear types peak in fall, while purse seines show a distinct winter concentration. Supporting text describes the when, where, and what of fishing vessel presence in the sanctuary." width="18in"}
+![Figure 4: Infographic summarizing AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary (2017–2024), showing seasonal patterns, spatial hotspots, and overall fishing effort by gear type. Data: Global Fishing Watch](figures/ais_infographic_canva.png){fig-alt="Infographic with three visualizations of AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary from 2017 to 2024. The top left shows a radial bar chart where pole and line and trawlers have the longest bars indicating highest fishing hours. The top right shows a density map of the sanctuary where fishing effort is most concentrated near Point Conception and Arguello Canyon in the eastern portion. The bottom shows a ridgeline plot where most gear types peak in fall, while purse seines show a distinct winter concentration. Supporting text describes the when, where, and what of fishing vessel presence in the sanctuary." width="12in"}
 
 ### What are we seeing?
 
@@ -509,3 +509,17 @@ circle_plot <- ggplot(fleet_agg_gear) +
 circle_plot
 
 ```
+
+### Data Sources & Citations
+
+-   **Global Fishing Watch (GFW)**: Global Fishing Watch. 2025. Global Apparent Fishing Effort Dataset, Version 3.0. [doi:10.5281/zenodo.14982712](url). Data accessed via [globalfishingwatch.org](https://globalfishingwatch.org)
+
+-   **Chumash Heritage National Marine Sanctuary boundary**:
+
+    Office of National Marine Sanctuaries, National Ocean Service, National Oceanic and Atmospheric Administration, U.S. Department of Commerce. (2024). *Chumash Heritage National Marine Sanctuary digital boundary* (1st ed.) \[Vector digital data\]. NOAA. <https://sanctuaries.noaa.gov>
+
+-   **Kelp forest photo**: Schwemmer, R. NOAA Office of National Marine Sanctuaries.
+
+-   **Natural Earth**: Free map data from [naturalearthdata.com](https://www.naturalearthdata.com), used for basemap in density map.
+
+*Code and data available on my [GitHub](https://github.com/sarayu-26/eds240-infographic) (\@Sarayu-26).*
