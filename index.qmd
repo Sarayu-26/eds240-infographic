@@ -1,14 +1,13 @@
 ---
-title: "Insights from AIS Data in Chumash Heritage National Marine Sanctuary"
+title: "Insights from AIS Data in NOAA's Chumash Heritage National Marine Sanctuary"
 author: "Sarayu Ramnath"
-date: "March 17, 2026"
 format:
   html:
     embed-resources: false
-    theme: cosmo
+    theme: sandstone
     fontsize: 1.1em
     linestretch: 1.7
-    mainfont: "Merriweather"
+    mainfont: "Source Sans 3"
     smooth-scroll: true
     toc: true
 execute:
@@ -55,25 +54,29 @@ Finally, I wanted to know **what** types of gear contribute most to overall fish
 
 ![Figure 3: Total AIS-vessel fishing hours by gear type in Chumash Heritage National Marine Sanctuary (2017–2024). Bar length reflects total fishing hours; dashed line indicates mean annual hours over active years. Y-axis is log-scaled.](figures/ais_circle_plot_chnms.png){fig-alt="Circular bar chart showing total AIS-detected fishing hours by gear type in Chumash Heritage National Marine Sanctuary from 2017-2024. Pole and Line and Trawlers have the longest bars, indicating the highest total fishing hours. Other Purse Seines, Set Longlines, and Drifting Longlines show moderate effort. Purse Seines, Set Gillnets, Pots and Traps, Fixed Gear, and Trollers contribute relatively few hours. Dashed lines indicate mean annual fishing hours per gear type over active years. The color gradient transitions from light blue for low effort gear types to dark navy for high effort gear types." width="9in"}
 
-**These are the gear types used within the Sanctuary (Gear Type Context)**
+### Which Gears for Which Fish? 
 
-So readers can understand what these gears target and where:
+\*Gears listed with target species and location of water column they are used.
 
--   **Pole and line, trollers** : tuna and other offshore pelagic species
+**🎣 Pole and Line** – Hooks on poles, one fish at a time (*Tuna, pelagic species*, Offshore)
 
--   **Purse seines** : nearshore schooling fish like sardines and anchovies.
+**🚤 Trollers** – Lines dragged behind moving vessel (*Tuna, pelagic species*, Offshore)
 
--   **Other purse seines** – offshore schooling species such as tuna.
+**🌊 Purse Seines –** Large net encircles school of fish (*Sardines, anchovies*, Nearshore)
 
--   **Drifting longlines** : offshore species like swordfish and tuna
+**🌊 Other Purse Seines** – Large net encircles school of fish (*Tuna*, Offshore)
 
--   **Set longlines, fixed gear** : bottom-associated fish such as rockfish and halibut
+**🪝 Drifting Longlines** – Long lines with many hooks, drift freely (*Swordfish, tuna*, Offshore)
 
--   **Trawlers**: groundfish and shrimp
+**⚓ Set Longlines** Long lines with many hooks, anchored to bottom (*Rockfish, halibut*, Bottom)
 
--   **Set gillnets** : halibut and white seabass
+**🔧 Fixed Gear** Stationary gear anchored to seafloor (*Rockfish, halibut*, Bottom)
 
--   **Pots and traps** : crab and lobster
+**🚢 Trawlers** Large net dragged along seafloor (*Groundfish, shrimp*, Bottom)
+
+**🕸️ Set Gillnets** Vertical net panels anchored in place (*Halibut, white seabass*, Nearshore)
+
+**🪤 Pots and Traps** Baited cages placed on seafloor (*Crab, lobster*, Nearshore/Bottom)
 
 ## Methods
 
@@ -93,7 +96,7 @@ To help visualize these patterns, I’ve put together an infographic showing sea
 
 ### What are we seeing?
 
-Together, these visualizations give a broader picture of AIS-detected fishing activity within [Chumash Heritage National Marine Sanctuary]{.underline}.
+Together, these visualizations give a broader picture of AIS-detected fishing activity within CHNMS.
 
 Spatially, the density map shows that fishing activity is concentrated along the Point Conception region, with additional overlap near underwater features such as Arguello Canyon and Arguello Terrace, as well as some nearshore activity just south off the coast of San Luis Obispo. These areas appear as hotspots where fishing vessels are more frequently detected.
 
