@@ -87,8 +87,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary" id="toc-reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary" class="nav-link active" data-scroll-target="#reading-the-waters-with-global-fishing-watch-what-ais-data-reveals-about-fishing-activity-in-chumash-heritage-national-marine-sanctuary">Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in Chumash Heritage National Marine Sanctuary</a>
   <ul class="collapse">
   <li><a href="#spawning-idea" id="toc-spawning-idea" class="nav-link" data-scroll-target="#spawning-idea">Spawning Idea</a></li>
-  <li><a href="#ais-detected-fishing-20172024" id="toc-ais-detected-fishing-20172024" class="nav-link" data-scroll-target="#ais-detected-fishing-20172024"><strong>AIS-Detected Fishing (2017–2024)</strong></a></li>
-  <li><a href="#visualization-questions" id="toc-visualization-questions" class="nav-link" data-scroll-target="#visualization-questions">Visualization Questions</a></li>
+  </ul></li>
+  <li><a href="#ais-detected-fishing-20172024" id="toc-ais-detected-fishing-20172024" class="nav-link" data-scroll-target="#ais-detected-fishing-20172024">AIS-Detected Fishing (2017–2024)</a></li>
+  <li><a href="#visualization-questions" id="toc-visualization-questions" class="nav-link" data-scroll-target="#visualization-questions">Visualization Questions</a>
+  <ul class="collapse">
+  <li><a href="#seasonal-patterns-ridgeline-plot" id="toc-seasonal-patterns-ridgeline-plot" class="nav-link" data-scroll-target="#seasonal-patterns-ridgeline-plot"><strong>1. Seasonal Patterns: Ridgeline Plot</strong></a></li>
+  <li><a href="#spatial-hotspots-density-map" id="toc-spatial-hotspots-density-map" class="nav-link" data-scroll-target="#spatial-hotspots-density-map"><strong>2. Spatial Hotspots: Density Map</strong></a></li>
+  <li><a href="#magnitude-of-fishing-effort-circular-bar-chart" id="toc-magnitude-of-fishing-effort-circular-bar-chart" class="nav-link" data-scroll-target="#magnitude-of-fishing-effort-circular-bar-chart"><strong>3. Magnitude of Fishing Effort: Circular Bar Chart</strong></a></li>
   </ul></li>
   <li><a href="#methods" id="toc-methods" class="nav-link" data-scroll-target="#methods">Methods</a></li>
   <li><a href="#results-takeaways" id="toc-results-takeaways" class="nav-link" data-scroll-target="#results-takeaways">Results &amp; Takeaways</a>
@@ -145,16 +150,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </figure>
 </div>
 <p>Understanding preliminary fishing activity in the area was a little tricky. The sanctuary sits between two active harbors: Morro Bay Harbor to the north and Santa Barbara Harbor to the south. For the average public data parser and fisheries amateur, it makes it hard to know exactly what’s being caught and where. Catch landing data is reported at the harbor level, not the sanctuary level, so I couldn’t tell whether a fish and which gear type used was caught inside the sanctuary or somewhere outside and just landed nearby.</p>
-<p>To get around this, I looked at vessel tracking data from <u>Global Fishing Watch</u> (GFW), a nonprofit organization that uses satellite technology and machine learning to monitor global fishing activity in near real-time and makes this data publicly available. They collect Automatic Identification System (AIS) signals from vessels, which broadcast location, speed, and heading. Many large commercial vessels are required to carry AIS (&gt;65ft long), and some smaller vessels do so voluntarily. Using AIS data lets us get an idea of where and when fishing vessels are active, even if catch records are limited. Of course, there are caveats: many smaller vessels don’t carry AIS, and this data doesn’t include recreational, cultural, or subsistence fishing. Still, it gives a useful glimpse into fishing vessel presence in the sanctuary.</p>
+<p>To get around this, I looked at vessel tracking data from <a href="Globalfishingwatch.org"><u>Global Fishing Watch</u></a> (GFW), a nonprofit organization that uses satellite technology and machine learning to monitor global fishing activity in near real-time and makes this data publicly available. They collect Automatic Identification System (AIS) signals from vessels, which broadcast location, speed, and heading. Many large commercial vessels are required to carry AIS (&gt;65ft long), and some smaller vessels do so voluntarily. Using AIS data lets us get an idea of where and when fishing vessels are active, even if catch records are limited. Of course, there are caveats: many smaller vessels don’t carry AIS, and this data doesn’t include recreational, cultural, or subsistence fishing. Still, it gives a useful glimpse into fishing vessel presence in the sanctuary.</p>
 </section>
-<section id="ais-detected-fishing-20172024" class="level3">
-<h3 class="anchored" data-anchor-id="ais-detected-fishing-20172024"><strong>AIS-Detected Fishing (2017–2024)</strong></h3>
+</section>
+<section id="ais-detected-fishing-20172024" class="level2">
+<h2 class="anchored" data-anchor-id="ais-detected-fishing-20172024">AIS-Detected Fishing (2017–2024)</h2>
 <p>For CHNMS, AIS-detected fishing data from <strong>2017–2024</strong> provide a snapshot of fishing activity within and around the sanctuary. This information helps illustrate patterns of ocean use and the presence of industrial fishing vessels over time.</p>
 </section>
-<section id="visualization-questions" class="level3">
-<h3 class="anchored" data-anchor-id="visualization-questions">Visualization Questions</h3>
+<section id="visualization-questions" class="level2">
+<h2 class="anchored" data-anchor-id="visualization-questions">Visualization Questions</h2>
 <p>I wanted to answer three questions: <strong>when, where, and what.</strong> Each is represented with a different visualization.</p>
-<p><strong>1. Seasonal Patterns: Ridgeline Plot</strong></p>
+<section id="seasonal-patterns-ridgeline-plot" class="level3">
+<h3 class="anchored" data-anchor-id="seasonal-patterns-ridgeline-plot"><strong>1. Seasonal Patterns: Ridgeline Plot</strong></h3>
 <p>To look at <strong>when</strong> fishing activity happens, I created a ridgeline plot showing seasonal use of different gear types from 2017–2024. This plot organizes fishing effort by month and gear type, so I can see patterns, overlaps, and differences across the year. Some gears are used year-round, while others have clear seasonal peaks. Looking at this would help understand timing in fishing activity and how different gear types may overlap or remain separate during the year.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -162,7 +169,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <figcaption>Figure 1: Seasonal AIS-detected fishing effort by gear type in Chumash Heritage National Marine Sanctuary (2017–2024). Taller peaks indicate greater fishing effort. Color reflects time of year, transitioning from deep blue in winter through orange in summer and back to blue in winter.</figcaption>
 </figure>
 </div>
-<p><strong>2. Spatial Hotspots: Density Map</strong></p>
+</section>
+<section id="spatial-hotspots-density-map" class="level3">
+<h3 class="anchored" data-anchor-id="spatial-hotspots-density-map"><strong>2. Spatial Hotspots: Density Map</strong></h3>
 <p>Next, I explored <strong>where</strong> fishing activity is concentrated. Using the latitude and longitude coordinates from AIS, along with fishing hours, I made a density hotspot map. This lets us view areas with higher vessel presence versus more diffuse activity. Hotspots shows where fishing pressure is greatest and where it might overlap with sensitive habitats or biologically important areas, which I marked several offshore geological featrures. The density map is a clear way to visualize spatial concentration across the sanctuary.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -170,7 +179,9 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <figcaption>Figure 2: AIS-detected fishing vessel density in Chumash Heritage National Marine Sanctuary (2017–2024). Darker contours indicate higher concentrations of fishing effort.</figcaption>
 </figure>
 </div>
-<p><strong>3. Magnitude of Fishing Effort: Circular Bar Chart</strong></p>
+</section>
+<section id="magnitude-of-fishing-effort-circular-bar-chart" class="level3">
+<h3 class="anchored" data-anchor-id="magnitude-of-fishing-effort-circular-bar-chart"><strong>3. Magnitude of Fishing Effort: Circular Bar Chart</strong></h3>
 <p>Finally, I wanted to know <strong>what</strong> types of gear contribute most to overall fishing effort. I aggregated fishing hours by gear type from 2017–2024 and made a circular bar chart. This shows the relative contribution of each gear and provides context for the seasonal and spatial patterns. Common gear types include pole and line, trollers, purse seines (nearshore), other purse seines (offshore), drifting longlines, set longlines, fixed gear, trawlers, set gillnets, and pots and traps. Seeing which gears are most populous gives insight into the composition of AIS-detected fishing activity in the Sanctuary.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
@@ -206,7 +217,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>To help visualize these patterns, I’ve put together an infographic showing seasonal trends, spatial hotspots, and overall fishing effort by gear type in Chumash Heritage National Marine Sanctuary.</p>
 <div class="quarto-figure quarto-figure-center">
 <figure class="figure">
-<p><img src="figures/ais_infographic_final.png" class="img-fluid figure-img" style="width:16in" alt="Infographic with three visualizations of AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary from 2017 to 2024. The top left shows a radial bar chart where pole and line and trawlers have the longest bars indicating highest fishing hours. The top right shows a density map of the sanctuary where fishing effort is most concentrated near Point Conception and Arguello Canyon in the eastern portion. The bottom shows a ridgeline plot where most gear types peak in fall, while purse seines show a distinct winter concentration. Supporting text describes the when, where, and what of fishing vessel presence in the sanctuary."></p>
+<p><img src="figures/ais_infographic_canva.png" class="img-fluid figure-img" style="width:18in" alt="Infographic with three visualizations of AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary from 2017 to 2024. The top left shows a radial bar chart where pole and line and trawlers have the longest bars indicating highest fishing hours. The top right shows a density map of the sanctuary where fishing effort is most concentrated near Point Conception and Arguello Canyon in the eastern portion. The bottom shows a ridgeline plot where most gear types peak in fall, while purse seines show a distinct winter concentration. Supporting text describes the when, where, and what of fishing vessel presence in the sanctuary."></p>
 <figcaption>Figure 4: Infographic summarizing AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary (2017–2024), showing seasonal patterns, spatial hotspots, and overall fishing effort by gear type. Data: Global Fishing Watch</figcaption>
 </figure>
 </div>
