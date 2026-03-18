@@ -1,30 +1,33 @@
 ---
-title: "Infographic Blog Post"
+title: "Insights from AIS Data in Chumash Heritage National Marine Sanctuary"
 author: "Sarayu Ramnath"
 date: "March 17, 2026"
 format:
   html:
     embed-resources: false
-    theme: simplex
+    theme: cosmo
+    fontsize: 1.1em
+    linestretch: 1.7
+    mainfont: "Merriweather"
+    smooth-scroll: true
+    toc: true
 execute:
   echo: false
   message: false
   warning: false
 ---
 
-## Fishing Activity in Chumash Heritage National Marine Sanctuary: Insights from AIS Data
+## Reading the Waters with Global Fishing Watch: What AIS Data Reveals About Fishing Activity in Chumash Heritage National Marine Sanctuary
 
 ### Spawning Idea
 
 I’ve been exploring fishing activity in Chumash Heritage National Marine Sanctuary (CHNMS), which stretches along the central California coast from Gaviota to just south of Morro Bay and protects a variety of nearshore and offshore marine habitats.This area is a remarkably biodiverse stretch of ocean. It is anchored by Point Conception , where cold northern currents collide with warmer southern waters, creating a unique mixing zone that supports an extraordinary range of life. Underwater, forests of giant kelp (Macrocystis pyrifera) rise from rocky reefs, their canopies filtering sunlight into shifting green-gold rays. Sea otters wrap themselves in kelp fronds to sleep, rockfish tuck into crevices below, and spouts of gray whales and humpback whales can be seen from shore as they swim along the coast during their annual migrations. These nearshore and offshore underwater forests are home to fish, invertebrates, seabirds, marine mammals, and for the coastal communities that have held relationships with these waters for thousands of years. I wanted to better understand human interactions within the sanctuary, especially fishing, because it's a key piece of understanding how we can engage with and steward these waters.
 
-![Kelp (Macrocystis pyrifera) forest located at Cojo Anchorage near Point Conception, Calif., hosts a variety of invertebrates, fish and marine mammals. Credit: Robert Schwemmer, NOAA](images/kelp-point-conception-marine-reserve-001_robert-schwemmer.jpg){fig-align="center"}
+![Kelp (Macrocystis pyrifera) forest located at Cojo Anchorage near Point Conception, Calif., hosts a variety of invertebrates, fish and marine mammals. Credit: Robert Schwemmer, NOAA](images/kelp-point-conception-marine-reserve-001_robert-schwemmer.jpg){fig-alt="Underwater view of a giant kelp (Macrocystis pyrifera) forest at Cojo Anchorage near Point Conception, California. Tall kelp fronds rise from the rocky reef toward the surface, with light filtering through the canopy. Credit: Robert Schwemmer, NOAA" fig-align="center" width="10in"}
 
 Understanding preliminary fishing activity in the area was a little tricky. The sanctuary sits between two active harbors: Morro Bay Harbor to the north and Santa Barbara Harbor to the south. For the average public data parser and fisheries amateur, it makes it hard to know exactly what’s being caught and where. Catch landing data is reported at the harbor level, not the sanctuary level, so I couldn't tell whether a fish and which gear type used was caught inside the sanctuary or somewhere outside and just landed nearby.
 
 To get around this, I looked at vessel tracking data from [Global Fishing Watch]{.underline} (GFW), a nonprofit organization that uses satellite technology and machine learning to monitor global fishing activity in near real-time and makes this data publicly available. They collect Automatic Identification System (AIS) signals from vessels, which broadcast location, speed, and heading. Many large commercial vessels are required to carry AIS (\>65ft long), and some smaller vessels do so voluntarily. Using AIS data lets us get an idea of where and when fishing vessels are active, even if catch records are limited. Of course, there are caveats: many smaller vessels don’t carry AIS, and this data doesn’t include recreational, cultural, or subsistence fishing. Still, it gives a useful glimpse into fishing vessel presence in the sanctuary.
-
-**So the data...**
 
 ### **AIS-Detected Fishing (2017–2024)**
 
@@ -38,19 +41,19 @@ I wanted to answer three questions: **when, where, and what.** Each is represent
 
 To look at **when** fishing activity happens, I created a ridgeline plot showing seasonal use of different gear types from 2017–2024. This plot organizes fishing effort by month and gear type, so I can see patterns, overlaps, and differences across the year. Some gears are used year-round, while others have clear seasonal peaks. Looking at this would help understand timing in fishing activity and how different gear types may overlap or remain separate during the year.
 
-![Figure 1: Seasonal AIS-detected fishing effort by gear type in Chumash Heritage National Marine Sanctuary (2017–2024). Taller peaks indicate greater fishing effort. Color reflects time of year, transitioning from deep blue in winter through orange in summer and back to blue in winter.](figures/ais_ridgeline.png){fig-alt="Alt-Text: Ridgeline plot showing seasonal fishing effort by gear type in Chumash Heritage National Marine Sanctuary. Fishing activity peaks in fall, with strong overlaps among trawlers, purse seines, set gillnets, and pots and traps between September and November. The color gradient encodes seasonality, transitioning from dark blue in December to March, to lighter blue in April, shifting to yellow and orange during the summer months from June to August, and returning from lighter blue to darker blue in October through December."}
+![Figure 1: Seasonal AIS-detected fishing effort by gear type in Chumash Heritage National Marine Sanctuary (2017–2024). Taller peaks indicate greater fishing effort. Color reflects time of year, transitioning from deep blue in winter through orange in summer and back to blue in winter.](figures/ais_ridgeline.png){fig-alt="Alt-Text: Ridgeline plot showing seasonal fishing effort by gear type in Chumash Heritage National Marine Sanctuary. Fishing activity peaks in fall, with strong overlaps among trawlers, purse seines, set gillnets, and pots and traps between September and November. The color gradient encodes seasonality, transitioning from dark blue in December to March, to lighter blue in April, shifting to yellow and orange during the summer months from June to August, and returning from lighter blue to darker blue in October through December." width="12in"}
 
 **2. Spatial Hotspots: Density Map**
 
 Next, I explored **where** fishing activity is concentrated. Using the latitude and longitude coordinates from AIS, along with fishing hours, I made a density hotspot map. This lets us view areas with higher vessel presence versus more diffuse activity. Hotspots shows where fishing pressure is greatest and where it might overlap with sensitive habitats or biologically important areas, which I marked several offshore geological featrures. The density map is a clear way to visualize spatial concentration across the sanctuary.
 
-![Figure 2: AIS-detected fishing vessel density in Chumash Heritage National Marine Sanctuary (2017–2024). Darker contours indicate higher concentrations of fishing effort.](figures/ais_density_chnms.png){fig-alt="Density map of AIS-detected fishing vessel effort in Chumash Heritage National Marine Sanctuary from 2017-2024. Fishing activity is heavily concentrated near Point Conception and Arguello Canyon in the eastern portion of the sanctuary, shown in dark purple. Activity spreads outward toward Arguello Terrace and Santa Lucia Bank in lighter green contours, with minimal effort in the western and southern offshore areas. Key landmarks including Rodriguez Seamount, Lompoc, Gaviota, and San Luis Obispo are labeled."}
+![Figure 2: AIS-detected fishing vessel density in Chumash Heritage National Marine Sanctuary (2017–2024). Darker contours indicate higher concentrations of fishing effort.](figures/ais_density_chnms.png){fig-alt="Density map of AIS-detected fishing vessel effort in Chumash Heritage National Marine Sanctuary from 2017-2024. Fishing activity is heavily concentrated near Point Conception and Arguello Canyon in the eastern portion of the sanctuary, shown in dark purple. Activity spreads outward toward Arguello Terrace and Santa Lucia Bank in lighter green contours, with minimal effort in the western and southern offshore areas. Key landmarks including Rodriguez Seamount, Lompoc, Gaviota, and San Luis Obispo are labeled." width="10in"}
 
 **3. Magnitude of Fishing Effort: Circular Bar Chart**
 
 Finally, I wanted to know **what** types of gear contribute most to overall fishing effort. I aggregated fishing hours by gear type from 2017–2024 and made a circular bar chart. This shows the relative contribution of each gear and provides context for the seasonal and spatial patterns. Common gear types include pole and line, trollers, purse seines (nearshore), other purse seines (offshore), drifting longlines, set longlines, fixed gear, trawlers, set gillnets, and pots and traps. Seeing which gears are most populous gives insight into the composition of AIS-detected fishing activity in the Sanctuary.
 
-![Figure 3: Total AIS-vessel fishing hours by gear type in Chumash Heritage National Marine Sanctuary (2017–2024). Bar length reflects total fishing hours; dashed line indicates mean annual hours over active years. Y-axis is log-scaled.](figures/ais_circle_plot_chnms.png){fig-alt="Circular bar chart showing total AIS-detected fishing hours by gear type in Chumash Heritage National Marine Sanctuary from 2017-2024. Pole and Line and Trawlers have the longest bars, indicating the highest total fishing hours. Other Purse Seines, Set Longlines, and Drifting Longlines show moderate effort. Purse Seines, Set Gillnets, Pots and Traps, Fixed Gear, and Trollers contribute relatively few hours. Dashed lines indicate mean annual fishing hours per gear type over active years. The color gradient transitions from light blue for low effort gear types to dark navy for high effort gear types."}
+![Figure 3: Total AIS-vessel fishing hours by gear type in Chumash Heritage National Marine Sanctuary (2017–2024). Bar length reflects total fishing hours; dashed line indicates mean annual hours over active years. Y-axis is log-scaled.](figures/ais_circle_plot_chnms.png){fig-alt="Circular bar chart showing total AIS-detected fishing hours by gear type in Chumash Heritage National Marine Sanctuary from 2017-2024. Pole and Line and Trawlers have the longest bars, indicating the highest total fishing hours. Other Purse Seines, Set Longlines, and Drifting Longlines show moderate effort. Purse Seines, Set Gillnets, Pots and Traps, Fixed Gear, and Trollers contribute relatively few hours. Dashed lines indicate mean annual fishing hours per gear type over active years. The color gradient transitions from light blue for low effort gear types to dark navy for high effort gear types." width="9in"}
 
 **These are the gear types used within the Sanctuary (Gear Type Context)**
 
@@ -86,7 +89,7 @@ I used a processed dataset from Global Fishing Watch covering 2017–2024. I fil
 
 To help visualize these patterns, I’ve put together an infographic showing seasonal trends, spatial hotspots, and overall fishing effort by gear type in Chumash Heritage National Marine Sanctuary.
 
-![](figures/AIS- Infographic-Draft-Canva (48 x 36 in).png)
+![Figure 4: Infographic summarizing AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary (2017–2024), showing seasonal patterns, spatial hotspots, and overall fishing effort by gear type. Data: Global Fishing Watch](figures/ais_infographic_final.png){fig-alt="Infographic with three visualizations of AIS-Vessel fishing activity in Chumash Heritage National Marine Sanctuary from 2017 to 2024. The top left shows a radial bar chart where pole and line and trawlers have the longest bars indicating highest fishing hours. The top right shows a density map of the sanctuary where fishing effort is most concentrated near Point Conception and Arguello Canyon in the eastern portion. The bottom shows a ridgeline plot where most gear types peak in fall, while purse seines show a distinct winter concentration. Supporting text describes the when, where, and what of fishing vessel presence in the sanctuary." width="16in"}
 
 ### What are we seeing?
 
@@ -110,15 +113,17 @@ Here are some design elements I kept in mind and how I applied them to my infogr
 
 -   **Temporal Representation**: The ridgeline plot captures the timing of fishing activity across months and gears, showing both year-round and seasonal peaks.
 
-    **Spatial Representation**: The density map communicates hotspots and nearshore/offshore patterns. I highlighted locational landmarks like Point Conception and offshore features like Arguello Canyon/Terrace, which are present in the density map.
+-   **Spatial Representation**: The density map communicates hotspots and nearshore/offshore patterns. I highlighted locational landmarks like Point Conception and offshore features like Arguello Canyon/Terrace, which are present in the density map.
 
 -   **Representing Magnitude** : In the circular bar chart, the length of each bar directly corresponds to the sum of AIS-detected fishing hours, making it easy to see which gear types are most used. I also included an individual mean activity line so readers can see average hours of usage relative to the overall gear usage range.
 
 -   **Scale & Axes** : For the ridgeline plot, I added month labels and kept axes consistent so readers can compare gear use across months. In the density map, I chose a consistent scale for fishing hours across grid cells to make hotspots interpretable.
 
-    ## Code
+-   **Accessibility and Representation** : Every figure includes alt text embedded in the HTML for screen readers. Color palettes were verified using [Coblis](https://www.color-blindness.com/coblis-color-blindness-simulator/) and remain distinguishable across simulated color vision deficiencies. This analysis only captures vessels with AIS transceivers, which are largely larger commercial vessels. Recreational, cultural, and subsistence fishing are entirely absent, which is especially worth noting given how cultural and deep fishing relationships has fostered along California's coast for thousands of years. A fuller picture of fishing activity in the sanctuary would require bringing in additional data sources and community knowledge beyond what AIS can provide.
 
-    To generate these visualizations, I worked with a processed AIS dataset from Global Fishing Watch covering 2017–2024 within the Chumash Heritage National Marine Sanctuary. Using R, I filtered the data to the sanctuary boundary and summarized fishing hours by gear type, month, and location. I relied on packages like ggplot2 for plotting, ggridges for the ridgeline plot, and mapping tools for the density map to visualize spatial hotspots. The ridgeline plot shows seasonal patterns by gear type, the density map highlights spatial concentration of fishing activity, and the circular bar chart summarizes overall fishing effort by gear. I’ve suppressed the code in the blog for readability, but these visualizations directly reflect the data processing and plotting choices I made to convey patterns clearly.
+## Code
+
+To generate these visualizations, I worked with a processed AIS dataset from Global Fishing Watch covering 2017–2024 within the Chumash Heritage National Marine Sanctuary. Using R, I filtered the data to the sanctuary boundary and summarized fishing hours by gear type, month, and location. I relied on packages like ggplot2 for plotting, ggridges for the ridgeline plot, and mapping tools for the density map to visualize spatial hotspots. The ridgeline plot shows seasonal patterns by gear type, the density map highlights spatial concentration of fishing activity, and the circular bar chart summarizes overall fishing effort by gear. I’ve suppressed the code in the blog for readability, but these visualizations directly reflect the data processing and plotting choices I made to convey patterns clearly.
 
 ```{r}
 #| eval: false
