@@ -9,7 +9,6 @@ format:
     linestretch: 1.7
     mainfont: "Source Sans 3"
     smooth-scroll: true
-    toc: true
 execute:
   echo: false
   message: false
@@ -54,7 +53,7 @@ Finally, I wanted to know **what** types of gear contribute most to overall fish
 
 ![Figure 3: Total AIS-vessel fishing hours by gear type in Chumash Heritage National Marine Sanctuary (2017–2024). Bar length reflects total fishing hours; dashed line indicates mean annual hours over active years. Y-axis is log-scaled.](figures/ais_circle_plot_chnms.png){fig-alt="Circular bar chart showing total AIS-detected fishing hours by gear type in Chumash Heritage National Marine Sanctuary from 2017-2024. Pole and Line and Trawlers have the longest bars, indicating the highest total fishing hours. Other Purse Seines, Set Longlines, and Drifting Longlines show moderate effort. Purse Seines, Set Gillnets, Pots and Traps, Fixed Gear, and Trollers contribute relatively few hours. Dashed lines indicate mean annual fishing hours per gear type over active years. The color gradient transitions from light blue for low effort gear types to dark navy for high effort gear types." width="9in"}
 
-### Which Gears for Which Fish? 
+### Which Gears for Which Fish?
 
 \*Gears listed with target species and location of water column they are used.
 
